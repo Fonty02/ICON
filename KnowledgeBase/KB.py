@@ -14,11 +14,11 @@ class clausola:
 
 
 class KB:
-    def __init__(self, clausole=[], askable=set(),assumable=set()):
+    def __init__(self, clausole=[], askable=set(), assumable=set()):
         self.clausole = clausole
         self.atomiTesta = {}
         self.askable = askable
-        self.assumable=assumable
+        self.assumable = assumable
         for c in clausole:
             self.addClausola(c)
 
@@ -92,34 +92,39 @@ class KB:
                 proofs.append(proof_at)
         return proofs
 
-
-    def prove_all_assumable(self,ans_body,assumed=set()):
+    def prove_all_assumable(self, ans_body, assumed=None):
+        if assumed is None:
+            assumed = set()
         if ans_body:
-            selected=ans_body[0]
-            if selected in self.assumable:
-                return self.prove_all_assumable(ans_body[1:],assumed|{selected})
+            selected = ans_body[0]
+            if selected in self.askable:
+                if (input("Is " + selected + " true? ")=="Y"):
+                    return self.prove_all_assumable(ans_body[1:], assumed)
+                else:
+                    return []  # no answers
+            elif selected in self.assumable:
+                return self.prove_all_assumable(ans_body[1:], assumed | {selected})
             else:
                 return [ass
                         for cl in self.clausolePerTesta(selected)
-                        for ass in self.prove_all_assumable(cl.body+ans_body[1:],assumed)]
+                        for ass in self.prove_all_assumable(cl.body + ans_body[1:], assumed)]
         else:
             return assumed
 
-
     def conflicts(self):
-        return self.minsets(self.prove_all_assumable(["false"]))
+        return self.minsets(self.prove_all_assumable(['false']))
 
-    def minsets(self,ls):
-        ans=[]
+    def minsets(self, ls):
+        ans = []
         for c in ls:
-            if not any(c1<c for c1 in ls) and not  any (c1<=c for c1 in ans):
+            if not any(c1 < c for c1 in ls) and not any(c1 <= c for c1 in ans):
                 ans.append(c)
         return ans
 
-    def diagnoses(self,cons):
-        if cons==[]:
+    def diagnoses(self, cons):
+        if cons == []:
             return [set()]
         else:
-            return self.minsets([({e}|d)
-                for e in cons[0]
-                for d in self.diagnoses(cons[1:])])
+            return self.minsets([({e} | d)
+                                 for e in cons[0]
+                                 for d in self.diagnoses(cons[1:])])
