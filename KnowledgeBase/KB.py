@@ -14,11 +14,12 @@ class clausola:
 
 
 class KB:
-    def __init__(self, clausole=[], askable=set(), assumable=set()):
+    def __init__(self, clausole=[], askable=set(), assumable=set(), naf=set()):
         self.clausole = clausole
         self.atomiTesta = {}
         self.askable = askable
         self.assumable = assumable
+        self.naf = naf
         for c in clausole:
             self.addClausola(c)
 
@@ -35,6 +36,9 @@ class KB:
         else:
             self.atomiTesta[c.head] = set()
             self.atomiTesta[c.head].add(c)
+
+    def addNAF(self, c):
+        self.naf.add(c)
 
     def __repr__(self):
         rep = ""
@@ -128,3 +132,23 @@ class KB:
             return self.minsets([({e} | d)
                                  for e in cons[0]
                                  for d in self.diagnoses(cons[1:])])
+
+    def prove_naf(self, ans_body, indent=""):
+        print(2, indent, 'yes <-', ' & '.join(str(e) for e in ans_body))
+        if ans_body:
+                selected = ans_body[0]  # select first atom from ans_body
+                if selected in self.naf:
+                    print(2, indent, f"proving {selected.atom()}")
+                    if self.prove_naf([selected.atom()], indent):
+                        print(2, indent, f"{selected.atom()} succeeded so Not({selected.atom()})fails")
+                        return False
+                    else:
+                        print(2, indent, f"{selected.atom()} fails soNot({selected.atom()})succeeds")
+                        return self.prove_naf(ans_body[1:], indent + " ")
+                if selected in self.askables:
+                    return (input("Is " + selected + " true? ")=="Y") and self.prove_naf(ans_body[1:], indent + " ")
+                else:
+                    return any(self.prove_naf(cl.body + ans_body[1:], indent + " ")
+                                   for cl in self.clausolePerTesta(selected))
+        else:
+            return True
