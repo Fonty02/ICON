@@ -1,5 +1,5 @@
 from pyswip import Prolog
-from KB import *
+"""from KB import *
 
 kb = KB()
 with open("base_conoscenza.pl", "r") as file:
@@ -30,5 +30,9 @@ kb.addAskable("down_s2")
 kb.addAskable("up_s3")
 kb.addAskable("down_s3")
 
-print(kb.prove_all_assumable(["false"]))
+print(kb.prove_all_assumable(["false"]))"""
+
+prolog = Prolog()
+prolog.consult("base_conoscenza_primo_ordine.txt")
+print(list(prolog.query("area(X,A), A>1285216")))
 
