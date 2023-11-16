@@ -22,7 +22,7 @@ with open('Playlist.json', 'r', encoding='utf-8') as json_file:
 
 # Crea e apri un file CSV in modalità scrittura
 with open('playlist_tracks.csv', 'w', newline='', encoding='utf-8') as csv_file:
-    fieldnames = ['playlistName', 'explicit','danceability','energy','key','loudness','speechiness','acousticness','instrumentalness','liveness','valence','tempo']
+    fieldnames = ['playlistName', 'trackIsexplicit','danceability','energy','key','loudness','speechiness','acousticness','instrumentalness','liveness','valence','tempo']
     writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
     writer.writeheader()
 
@@ -39,7 +39,7 @@ with open('playlist_tracks.csv', 'w', newline='', encoding='utf-8') as csv_file:
                     track_uri = track.get('trackUri', '')
                     features = sp.audio_features(track_uri)
                     if features:
-                        explicit = features[0].get('explicit', '')
+                        explicit = features[0].get('trackIsexplicit', '')
                         danceability = features[0].get('danceability', '')
                         energy = features[0].get('energy', '')
                         key = features[0].get('key', '')
@@ -50,5 +50,5 @@ with open('playlist_tracks.csv', 'w', newline='', encoding='utf-8') as csv_file:
                         liveness = features[0].get('liveness', '')
                         valence = features[0].get('valence', '')
                         tempo = features[0].get('tempo', '')
-                        writer.writerow({'playlistName': playlist_name, 'explicit': explicit, 'danceability': danceability, 'energy': energy, 'key': key, 'loudness': loudness, 'speechiness': speechiness, 'acousticness': acousticness, 'instrumentalness': instrumentalness, 'liveness': liveness, 'valence': valence, 'tempo': tempo})
+                        writer.writerow({'playlistName': playlist_name, 'trackIsexplicit': explicit, 'danceability': danceability, 'energy': energy, 'key': key, 'loudness': loudness, 'speechiness': speechiness, 'acousticness': acousticness, 'instrumentalness': instrumentalness, 'liveness': liveness, 'valence': valence, 'tempo': tempo})
 
