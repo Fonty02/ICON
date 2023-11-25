@@ -8,7 +8,8 @@ import pandas as pd
 from balancingPlaylist import resampleDataset, visualizeAspectRatioChart
 #from bayesianNetwork import bayesianNetwork
 from removeOutliers import softClusteringEMOutliersRemoval
-#from training import trainModelKFold, visualizeMetricsGraphs
+from training import trainModelKFold, visualizeMetricsGraphs
+
 #from verificationFeaturesImportance import (createXfeatureAndyTarget,visualizeFeaturesImportances)
 
 
@@ -20,8 +21,6 @@ differentialColumn = "playlistName"
 
 print("\nInfo dataset:\n", dataSet.describe())
 
-# Richiama la funzione di clustering non supervisionato
-dataSet = softClusteringEMOutliersRemoval(dataSet)
 
 # Specifica la colonna differenziale (differentialColumn)
 differentialColumn = 'playlistName'
@@ -29,23 +28,38 @@ differentialColumn = 'playlistName'
 # Estrai i nomi delle playlist uniche
 playlistNames = dataSet[differentialColumn].unique()
 
+#PREPROCESSING
+#Map the playlist names to numbers and save the mapping in a dictionary for later use
+playlistNamesMapping = {}
+for i in range(len(playlistNames)):
+    playlistNamesMapping[playlistNames[i]] = i
+dataSet[differentialColumn] = dataSet[differentialColumn].map(playlistNamesMapping)
+
+
+# TRAINING
+model, X_test, y_test, knn, dtc, rfc, reg = trainModelKFold(
+    dataSet, differentialColumn)
+visualizeMetricsGraphs(model, X_test, y_test, knn, dtc, rfc, reg)
+
+# MIGLIORAMENTO DEL DATASET
+
+# Richiama la funzione di clustering non supervisionato
+#dataSet = softClusteringEMOutliersRemoval(dataSet)
+
 # Visualizza il rapporto di aspetto del dataset prima del bilanciamento
-visualizeAspectRatioChart(dataSet, differentialColumn, playlistNames)
+#visualizeAspectRatioChart(dataSet, differentialColumn, playlistNames)
 
 # Esegui il resampling del dataset per bilanciare le classi
-dataSet = resampleDataset(dataSet, differentialColumn)
+#dataSet = resampleDataset(dataSet, differentialColumn)
 
 # Visualizza il rapporto di aspetto del dataset dopo il bilanciamento
-visualizeAspectRatioChart(dataSet, differentialColumn, playlistNames)
+#visualizeAspectRatioChart(dataSet, differentialColumn, playlistNames)
+
+
+
 
 
 """
-# TRAINING
-model, X_test, y_test, knn, dtc, rfc, svc, bnb, gnb = trainModelKFold(
-    dataSet, differentialColumn)
-visualizeMetricsGraphs(model, X_test, y_test, knn, dtc, rfc, svc, bnb, gnb)
-
-
 # VERIFICATION OF THE IMPORTANCE OF FEATURES
 rfc_model, X = createXfeatureAndyTarget(dataSet, differentialColumn)
 
