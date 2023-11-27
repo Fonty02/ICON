@@ -8,7 +8,7 @@ import pandas as pd
 from balancingPlaylist import resampleDataset, visualizeAspectRatioChart
 #from bayesianNetwork import bayesianNetwork
 from removeOutliers import softClusteringEMOutliersRemoval
-from training import trainModelKFold, visualizeMetricsGraphs
+from training import  visualizeMetricsGraphs, trainModelKFold
 
 #from verificationFeaturesImportance import (createXfeatureAndyTarget,visualizeFeaturesImportances)
 
@@ -25,47 +25,50 @@ print("\nInfo dataset:\n", dataSet.describe())
 # Specifica la colonna differenziale (differentialColumn)
 differentialColumn = 'playlistName'
 
-# Estrai i nomi delle playlist uniche
-playlistNames = dataSet[differentialColumn].unique()
 
 #PREPROCESSING
-#Map the playlist names to numbers and save the mapping in a dictionary for later use
-playlistNamesMapping = {}
-for i in range(len(playlistNames)):
-    playlistNamesMapping[playlistNames[i]] = i
-dataSet[differentialColumn] = dataSet[differentialColumn].map(playlistNamesMapping)
+#se dataset[playlistName] == "Mhe" allora dataset[playlistName] = 1 altrimenti 0
+dataSet[differentialColumn] = dataSet[differentialColumn].apply(
+    lambda x: 1 if x == "Mhe" else 0)
+
+
+# Richiama la funzione di clustering non supervisionato
+dataSet = softClusteringEMOutliersRemoval(dataSet)
+
+# Visualizza il rapporto di aspetto del dataset prima del bilanciamento
+visualizeAspectRatioChart(dataSet, differentialColumn)
+
+# TRAINING
+model= trainModelKFold(dataSet, differentialColumn)
+visualizeMetricsGraphs(model)
+
+#VERIFICA IMPORTANZA FEATURE
+#rfc_model, X = createXfeatureAndyTarget(dataSet, differentialColumn)
+#visualizeFeaturesImportances(rfc_model, X)
+
+
+
+# Esegui il resampling del dataset per bilanciare le classi
+dataSet = resampleDataset(dataSet, differentialColumn)
+# Visualizza il rapporto di aspetto del dataset dopo il bilanciamento
+visualizeAspectRatioChart(dataSet, differentialColumn)
+
+
+#cambia il nome della colonna playlistName in mood
+dataSet = dataSet.rename(columns={differentialColumn: "mood"})
+differentialColumn = "mood"
 
 
 # TRAINING
-model, X_test, y_test, knn, dtc, rfc, reg = trainModelKFold(
-    dataSet, differentialColumn)
-visualizeMetricsGraphs(model, X_test, y_test, knn, dtc, rfc, reg)
+model= trainModelKFold(dataSet, differentialColumn)
+visualizeMetricsGraphs(model)
 
-# MIGLIORAMENTO DEL DATASET
-
-# Richiama la funzione di clustering non supervisionato
-#dataSet = softClusteringEMOutliersRemoval(dataSet)
-
-# Visualizza il rapporto di aspetto del dataset prima del bilanciamento
-#visualizeAspectRatioChart(dataSet, differentialColumn, playlistNames)
-
-# Esegui il resampling del dataset per bilanciare le classi
-#dataSet = resampleDataset(dataSet, differentialColumn)
-
-# Visualizza il rapporto di aspetto del dataset dopo il bilanciamento
-#visualizeAspectRatioChart(dataSet, differentialColumn, playlistNames)
+#VERIFICA IMPORTANZA FEATURE
+#rfc_model, X = createXfeatureAndyTarget(dataSet, differentialColumn)
+#visualizeFeaturesImportances(rfc_model, X)
 
 
-
-
-
-"""
-# VERIFICATION OF THE IMPORTANCE OF FEATURES
-rfc_model, X = createXfeatureAndyTarget(dataSet, differentialColumn)
-
-visualizeFeaturesImportances(rfc_model, X)
-
-
+'''
 # BAYESIAN NETWORK
 bayesianNetwork(dataSet, differentialColumn)
-"""
+'''

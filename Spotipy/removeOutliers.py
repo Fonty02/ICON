@@ -5,7 +5,7 @@ from sklearn.mixture import GaussianMixture
 
 def softClusteringEMOutliersRemoval(dataSet):
     # Carica il tuo file CSV
-    df = pd.read_csv('playlist_tracks.csv')
+    df = dataSet
 
     # Seleziona solo le colonne contenenti le feature delle canzoni (escludi la colonna con i nomi delle playlist)
     song_features = df.drop('playlistName', axis=1)
