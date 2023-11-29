@@ -15,7 +15,7 @@ from training import  visualizeMetricsGraphs, trainModelKFold
 
 # DATASET CLEANING
 fileName = os.path.join(os.path.dirname(__file__), "playlist_tracks.csv")
-dataSet = pd.read_csv(fileName)
+dataSet = pd.read_csv(fileName, low_memory=False)
 differentialColumn = "playlistName"
 
 
@@ -40,7 +40,7 @@ visualizeAspectRatioChart(dataSet, differentialColumn)
 
 # TRAINING
 model= trainModelKFold(dataSet, differentialColumn)
-visualizeMetricsGraphs(model)
+
 
 #VERIFICA IMPORTANZA FEATURE
 #rfc_model, X = createXfeatureAndyTarget(dataSet, differentialColumn)
@@ -61,7 +61,6 @@ differentialColumn = "mood"
 
 # TRAINING
 model= trainModelKFold(dataSet, differentialColumn)
-visualizeMetricsGraphs(model)
 
 #VERIFICA IMPORTANZA FEATURE
 #rfc_model, X = createXfeatureAndyTarget(dataSet, differentialColumn)
