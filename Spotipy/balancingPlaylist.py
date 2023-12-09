@@ -1,27 +1,37 @@
 import matplotlib.pyplot as plt
-import pandas as pd
-from sklearn.utils import resample
 
 from stampe import prGreenMoreString, prRedMoreString, prYellow
+
+from imblearn.over_sampling import SMOTE
+import pandas as pd
 
 
 def resampleDataset(dataSet, differentialColumn):
     dataSet.drop(dataSet[(dataSet[differentialColumn] != 0) & (
-        dataSet[differentialColumn] != 1)].index, inplace=True)
-    df_majority = dataSet[dataSet[differentialColumn] == 0]
-    df_minority = dataSet[dataSet[differentialColumn] == 1]
+            dataSet[differentialColumn] != 1)].index, inplace=True)
 
-    df_minority_upsampled = resample(
-        df_minority, replace=True, n_samples=len(df_majority), random_state=42)
-    dataSet = pd.concat([df_minority_upsampled, df_majority])
+    X = dataSet.drop(columns=[differentialColumn])
+    y = dataSet[differentialColumn]
+
+    # Creazione di un oggetto SMOTE
+    smote = SMOTE(random_state=42)
+
+    # Applicazione di SMOTE al dataset
+    X_resampled, y_resampled = smote.fit_resample(X, y)
+
+    # Creazione di un nuovo DataFrame con i dati resampled
+    dataSet_resampled = pd.DataFrame(X_resampled, columns=X.columns)
+    dataSet_resampled[differentialColumn] = y_resampled
 
     prYellow("\nValue after Oversampling:")
-    prGreenMoreString('Positive mood: ', dataSet.playlistName.value_counts()[0],
-                      '(% {:.2f})'.format(dataSet.playlistName.value_counts()[0] / dataSet.playlistName.count() * 100))
-    prRedMoreString('Neegative mood: ', dataSet.playlistName.value_counts()[1],
-                    '(% {:.2f})'.format(dataSet.playlistName.value_counts()[1] / dataSet.playlistName.count() * 100))
+    prGreenMoreString('Positive mood: ', dataSet_resampled[differentialColumn].value_counts()[0],
+                      '(% {:.2f})'.format(dataSet_resampled[differentialColumn].value_counts()[0] / dataSet_resampled[
+                          differentialColumn].count() * 100))
+    prRedMoreString('Negative mood: ', dataSet_resampled[differentialColumn].value_counts()[1],
+                    '(% {:.2f})'.format(dataSet_resampled[differentialColumn].value_counts()[1] / dataSet_resampled[
+                        differentialColumn].count() * 100))
 
-    return dataSet
+    return dataSet_resampled
 
 
 def visualizeAspectRatioChart(dataSet, differentialColumn):

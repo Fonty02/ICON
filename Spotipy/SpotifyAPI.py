@@ -1,7 +1,7 @@
 import os
 import re
 import pandas as pd
-from pyswip import Prolog, Functor, Variable, Query
+from pyswip import Prolog
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import pyswip

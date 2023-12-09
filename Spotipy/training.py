@@ -75,6 +75,7 @@ def plot_learning_curves(model, X, y, differentialColumn, model_name):
     train_errors = 1 - train_scores
     test_errors = 1 - test_scores
 
+
     #Calcola la deviazione standard degli errori su addestramento e test
     train_errors_std = np.std(train_errors, axis=1)
     test_errors_std = np.std(test_errors, axis=1)
@@ -158,19 +159,25 @@ def trainModelKFold(dataSet, differentialColumn):
 
     X = dataSet.drop(differentialColumn, axis=1).to_numpy()
     y = dataSet[differentialColumn].to_numpy()
-    dtc = DecisionTreeClassifier(max_depth=bestParameters['DecisionTree__max_depth'],
-                                 min_samples_split=bestParameters['DecisionTree__min_samples_split'],
-                                 min_samples_leaf=bestParameters['DecisionTree__min_samples_leaf'],
-                                 max_features=bestParameters['DecisionTree__max_features'])
-
-
-    rfc = RandomForestClassifier(n_estimators=bestParameters['RandomForest__n_estimators'], max_depth=bestParameters['RandomForest__max_depth'], min_samples_split=bestParameters['RandomForest__min_samples_split'], min_samples_leaf=bestParameters['RandomForest__min_samples_leaf'], max_features=bestParameters['RandomForest__max_features'])
-    reg = LogisticRegression(C=bestParameters['LogisticRegression__C'], penalty=bestParameters['LogisticRegression__penalty'], solver=bestParameters['LogisticRegression__solver'], max_iter=bestParameters['LogisticRegression__max_iter'])
     kf = RepeatedKFold(n_splits=10, n_repeats=10)
 
     for train_index, test_index in kf.split(X, y):
         X_train, X_test = X[train_index], X[test_index]
         y_train, y_test = y[train_index], y[test_index]
+
+        dtc = DecisionTreeClassifier(max_depth=bestParameters['DecisionTree__max_depth'],
+                                     min_samples_split=bestParameters['DecisionTree__min_samples_split'],
+                                     min_samples_leaf=bestParameters['DecisionTree__min_samples_leaf'],
+                                     max_features=bestParameters['DecisionTree__max_features'])
+        rfc = RandomForestClassifier(n_estimators=bestParameters['RandomForest__n_estimators'],
+                                     max_depth=bestParameters['RandomForest__max_depth'],
+                                     min_samples_split=bestParameters['RandomForest__min_samples_split'],
+                                     min_samples_leaf=bestParameters['RandomForest__min_samples_leaf'],
+                                     max_features=bestParameters['RandomForest__max_features'])
+        reg = LogisticRegression(C=bestParameters['LogisticRegression__C'],
+                                 penalty=bestParameters['LogisticRegression__penalty'],
+                                 solver=bestParameters['LogisticRegression__solver'],
+                                 max_iter=bestParameters['LogisticRegression__max_iter'])
 
         #Decision Tree
         dtc.fit(X_train, y_train)
