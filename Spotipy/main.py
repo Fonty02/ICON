@@ -32,6 +32,7 @@ differentialColumn = 'playlistName'
 dataSet[differentialColumn] = dataSet[differentialColumn].apply(
     lambda x: 1 if x == "Mhe" else 0)
 
+dataSet=dataSet.drop(columns=['name','author'])
 
 # Richiama la funzione di clustering non supervisionato
 dataSet = softClusteringEMOutliersRemoval(dataSet)
