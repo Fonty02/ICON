@@ -1,6 +1,7 @@
 import csv
 import json
 import os
+
 import pandas as pd
 import spotipy
 from pyswip import Prolog

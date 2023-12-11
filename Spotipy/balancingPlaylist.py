@@ -1,9 +1,8 @@
 import matplotlib.pyplot as plt
+import pandas as pd
+from imblearn.over_sampling import SMOTE
 
 from stampe import prGreenMoreString, prRedMoreString, prYellow
-
-from imblearn.over_sampling import SMOTE
-import pandas as pd
 
 
 def resampleDataset(dataSet, differentialColumn):
@@ -23,28 +22,34 @@ def resampleDataset(dataSet, differentialColumn):
     dataSet_resampled = pd.DataFrame(X_resampled, columns=X.columns)
     dataSet_resampled[differentialColumn] = y_resampled
 
-    prYellow("\nValue after Oversampling:")
-    prGreenMoreString('Positive mood: ', dataSet_resampled[differentialColumn].value_counts()[0],
-                      '(% {:.2f})'.format(dataSet_resampled[differentialColumn].value_counts()[0] / dataSet_resampled[
-                          differentialColumn].count() * 100))
-    prRedMoreString('Negative mood: ', dataSet_resampled[differentialColumn].value_counts()[1],
-                    '(% {:.2f})'.format(dataSet_resampled[differentialColumn].value_counts()[1] / dataSet_resampled[
-                        differentialColumn].count() * 100))
+    prYellow("\nOVERSAMPLING EFFETTUATO CON SUCCESSO\n")
 
     return dataSet_resampled
 
 
 def visualizeAspectRatioChart(dataSet, differentialColumn):
-    #crea e mostra un grafo a torta con una legenda che mostri il mood Negative se dataset[differentialColumn] == 1 altrimenti Positive
-    labels = 'Positive', 'Negative'
-    sizes = [dataSet[differentialColumn].value_counts()[0],
-             dataSet[differentialColumn].value_counts()[1]]
-    explode = (0, 0.1)  # explode 1st slice
-    fig1, ax1 = plt.subplots()
-    ax1.pie(sizes, explode=explode, labels=labels,
-            autopct='%1.1f%%', shadow=True, startangle=90)
-    ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+    # Filtra il dataset per StressRelief e DanceEnergy
+    stress_relief_data = dataSet[dataSet[differentialColumn] == 1]
+    dance_energy_data = dataSet[dataSet[differentialColumn] == 0]
+
+    # Conta le occorrenze per ciascun mood
+    stress_relief_count = len(stress_relief_data)
+    dance_energy_count = len(dance_energy_data)
+
+    # Etichette e colori per il grafico
+    labels = ['StressRelief', 'DanceEnergy']
+    colors = ['lightcoral', 'lightskyblue']
+
+    # Crea il grafico a torta
+    plt.pie([stress_relief_count, dance_energy_count], labels=labels, colors=colors, autopct='%1.1f%%', startangle=90)
+
+    # Aggiungi la legenda
     plt.legend()
+
+    # Titolo del grafico
+    plt.title("Distribuzione di StressRelief e DanceEnergy")
+
+    # Mostra il grafico
     plt.show()
 
 

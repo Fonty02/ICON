@@ -1,14 +1,13 @@
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from sklearn import metrics
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import RepeatedKFold, learning_curve, train_test_split
+from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import RepeatedKFold, learning_curve, train_test_split, cross_val_score
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.tree import DecisionTreeClassifier
-import matplotlib.pyplot as plt
-from sklearn.model_selection import GridSearchCV
 
 
 def createModel():
@@ -23,39 +22,12 @@ def createModel():
                          'recall': 0.0
                          },
         'LogisticRegression': {'accuracy': 0.0,
-                                        'precision': 0.0,
-                                        'recall': 0.0
-                                        }
+                                'precision': 0.0,
+                                'recall': 0.0
+                                }
     }
 
     return model
-
-
-def saveFoldMetricsInModel(model, y_test, y_pred_dtc, y_pred_rfc, y_pred_reg):
-    model['LogisticRegression']['accuracy_list'] = (
-        metrics.accuracy_score(y_test, y_pred_reg))
-    model['LogisticRegression']['precision_list'] = (
-        metrics.precision_score(y_test, y_pred_reg))
-    model['LogisticRegression']['recall_list'] = (
-        metrics.recall_score(y_test, y_pred_reg))
-
-    model['DecisionTree']['accuracy_list'] = (
-        metrics.accuracy_score(y_test, y_pred_dtc))
-    model['DecisionTree']['precision_list'] = (
-        metrics.precision_score(y_test, y_pred_dtc))
-    model['DecisionTree']['recall_list'] = (
-        metrics.recall_score(y_test, y_pred_dtc))
-
-    model['RandomForest']['accuracy_list'] = (
-        metrics.accuracy_score(y_test, y_pred_rfc))
-    model['RandomForest']['precision_list'] = (
-        metrics.precision_score(y_test, y_pred_rfc))
-    model['RandomForest']['recall_list'] = (
-        metrics.recall_score(y_test, y_pred_rfc))
-
-    return model
-
-
 
 def plot_learning_curves(model, X, y, differentialColumn, model_name):
     """
@@ -152,43 +124,51 @@ def returnBestHyperparametres(dataset, differentialColumn):
 
 
 def trainModelKFold(dataSet, differentialColumn):
+    # Shuffle del dataset. Alcuni algoritmi di ML potrebbero essere influenzati dall'ordine dei dati
+    data_array = dataSet.values
+    np.random.shuffle(data_array)
+    dataSet = pd.DataFrame(data_array, columns=dataSet.columns)
+
     model = createModel()
     bestParameters = returnBestHyperparametres(dataSet, differentialColumn)
     #print bestParamestre in blue
     print("\033[94m"+str(bestParameters)+"\033[0m")
-
     X = dataSet.drop(differentialColumn, axis=1).to_numpy()
     y = dataSet[differentialColumn].to_numpy()
-    kf = RepeatedKFold(n_splits=10, n_repeats=10)
-
-    for train_index, test_index in kf.split(X, y):
-        X_train, X_test = X[train_index], X[test_index]
-        y_train, y_test = y[train_index], y[test_index]
-
-        dtc = DecisionTreeClassifier(max_depth=bestParameters['DecisionTree__max_depth'],
-                                     min_samples_split=bestParameters['DecisionTree__min_samples_split'],
-                                     min_samples_leaf=bestParameters['DecisionTree__min_samples_leaf'],
-                                     max_features=bestParameters['DecisionTree__max_features'])
-        rfc = RandomForestClassifier(n_estimators=bestParameters['RandomForest__n_estimators'],
-                                     max_depth=bestParameters['RandomForest__max_depth'],
-                                     min_samples_split=bestParameters['RandomForest__min_samples_split'],
-                                     min_samples_leaf=bestParameters['RandomForest__min_samples_leaf'],
-                                     max_features=bestParameters['RandomForest__max_features'])
-        reg = LogisticRegression(C=bestParameters['LogisticRegression__C'],
-                                 penalty=bestParameters['LogisticRegression__penalty'],
-                                 solver=bestParameters['LogisticRegression__solver'],
-                                 max_iter=bestParameters['LogisticRegression__max_iter'])
-
-        #Decision Tree
-        dtc.fit(X_train, y_train)
-
-        #Random Forest
-        rfc.fit(X_train, y_train)
-
-        #Logistic Regression
-        reg.fit(X_train, y_train)
-
-        model = saveFoldMetricsInModel(model, y_test, dtc.predict(X_test), rfc.predict(X_test), reg.predict(X_test))
+    dtc = DecisionTreeClassifier(max_depth=bestParameters['DecisionTree__max_depth'],
+                                 min_samples_split=bestParameters['DecisionTree__min_samples_split'],
+                                 min_samples_leaf=bestParameters['DecisionTree__min_samples_leaf'],
+                                 max_features=bestParameters['DecisionTree__max_features'])
+    rfc = RandomForestClassifier(n_estimators=bestParameters['RandomForest__n_estimators'],
+                                 max_depth=bestParameters['RandomForest__max_depth'],
+                                 min_samples_split=bestParameters['RandomForest__min_samples_split'],
+                                 min_samples_leaf=bestParameters['RandomForest__min_samples_leaf'],
+                                 max_features=bestParameters['RandomForest__max_features'])
+    reg = LogisticRegression(C=bestParameters['LogisticRegression__C'],
+                             penalty=bestParameters['LogisticRegression__penalty'],
+                             solver=bestParameters['LogisticRegression__solver'],
+                             max_iter=bestParameters['LogisticRegression__max_iter'])
+    cv = RepeatedKFold(n_splits=10, n_repeats=10)
+    scoring_metrics = ['accuracy', 'precision', 'recall']
+    results_dtc = {}
+    results_rfc = {}
+    results_reg = {}
+    for metric in scoring_metrics:
+        scores_dtc = cross_val_score(dtc, X, y, scoring=metric, cv=cv)
+        scores_rfc = cross_val_score(rfc, X, y, scoring=metric, cv=cv)
+        scores_reg = cross_val_score(reg, X, y, scoring=metric, cv=cv)
+        results_dtc[metric] = scores_dtc
+        results_rfc[metric] = scores_rfc
+        results_reg[metric] = scores_reg
+    model['LogisticRegression']['accuracy_list'] = (results_reg['accuracy'])
+    model['LogisticRegression']['precision_list'] = (results_reg['precision'])
+    model['LogisticRegression']['recall_list'] = (results_reg['recall'])
+    model['DecisionTree']['accuracy_list'] = (results_dtc['accuracy'])
+    model['DecisionTree']['precision_list'] = (results_dtc['precision'])
+    model['DecisionTree']['recall_list'] = (results_dtc['recall'])
+    model['RandomForest']['accuracy_list'] = (results_rfc['accuracy'])
+    model['RandomForest']['precision_list'] = (results_rfc['precision'])
+    model['RandomForest']['recall_list'] = (results_rfc['recall'])
 
     plot_learning_curves(dtc, X, y, differentialColumn, 'DecisionTree')
     plot_learning_curves(rfc, X, y, differentialColumn, 'RandomForest')
