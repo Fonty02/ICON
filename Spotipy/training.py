@@ -14,16 +14,19 @@ def createModel():
     model = {
         'DecisionTree': {'accuracy': 0.0,
                          'precision': 0.0,
-                         'recall': 0.0
+                         'recall': 0.0,
+                         'f1': 0.0
                          },
 
         'RandomForest': {'accuracy': 0.0,
                          'precision': 0.0,
-                         'recall': 0.0
+                         'recall': 0.0,
+                         'f1': 0.0
                          },
         'LogisticRegression': {'accuracy': 0.0,
                                 'precision': 0.0,
-                                'recall': 0.0
+                                'recall': 0.0,
+                         'f1': 0.0
                                 }
     }
 
@@ -124,11 +127,6 @@ def returnBestHyperparametres(dataset, differentialColumn):
 
 
 def trainModelKFold(dataSet, differentialColumn):
-    # Shuffle del dataset. Alcuni algoritmi di ML potrebbero essere influenzati dall'ordine dei dati
-    data_array = dataSet.values
-    np.random.shuffle(data_array)
-    dataSet = pd.DataFrame(data_array, columns=dataSet.columns)
-
     model = createModel()
     bestParameters = returnBestHyperparametres(dataSet, differentialColumn)
     #print bestParamestre in blue
@@ -148,8 +146,8 @@ def trainModelKFold(dataSet, differentialColumn):
                              penalty=bestParameters['LogisticRegression__penalty'],
                              solver=bestParameters['LogisticRegression__solver'],
                              max_iter=bestParameters['LogisticRegression__max_iter'])
-    cv = RepeatedKFold(n_splits=10, n_repeats=10)
-    scoring_metrics = ['accuracy', 'precision', 'recall']
+    cv = RepeatedKFold(n_splits=5, n_repeats=5)
+    scoring_metrics = ['accuracy', 'precision', 'recall', 'f1']
     results_dtc = {}
     results_rfc = {}
     results_reg = {}
@@ -163,12 +161,15 @@ def trainModelKFold(dataSet, differentialColumn):
     model['LogisticRegression']['accuracy_list'] = (results_reg['accuracy'])
     model['LogisticRegression']['precision_list'] = (results_reg['precision'])
     model['LogisticRegression']['recall_list'] = (results_reg['recall'])
+    model['LogisticRegression']['f1'] = (results_reg['f1'])
     model['DecisionTree']['accuracy_list'] = (results_dtc['accuracy'])
     model['DecisionTree']['precision_list'] = (results_dtc['precision'])
     model['DecisionTree']['recall_list'] = (results_dtc['recall'])
+    model['DecisionTree']['f1'] = (results_dtc['f1'])
     model['RandomForest']['accuracy_list'] = (results_rfc['accuracy'])
     model['RandomForest']['precision_list'] = (results_rfc['precision'])
     model['RandomForest']['recall_list'] = (results_rfc['recall'])
+    model['RandomForest']['f1'] = (results_rfc['f1'])
 
     plot_learning_curves(dtc, X, y, differentialColumn, 'DecisionTree')
     plot_learning_curves(rfc, X, y, differentialColumn, 'RandomForest')
@@ -179,55 +180,36 @@ def trainModelKFold(dataSet, differentialColumn):
     return model
 
 
-
-
-
-
-
-def model_report(model):
-    dataSet_models = []
-    for clf in model:
-        dataSet_models.append(pd.DataFrame({'model': [clf],
-                                            'accuracy': [np.mean(model[clf]['accuracy_list'])],
-                                            'precision': [np.mean(model[clf]['precision_list'])],
-                                            'recall': [np.mean(model[clf]['recall_list'])],
-                                            }))
-
-    return dataSet_models
-
-
-
-
 def visualizeMetricsGraphs(model):
-    dataSet_models_concat = pd.concat(model_report(
-        model), axis=0).reset_index()
-    dataSet_models_concat = dataSet_models_concat.drop(
-        'index', axis=1)
+    models = list(model.keys())
 
-    #Accuracy
-    x = dataSet_models_concat.model
-    y = dataSet_models_concat.accuracy
+    # Creazione di un array numpy per ogni metrica
+    accuracy = np.array([model[clf]['accuracy_list'] for clf in models])
+    precision = np.array([model[clf]['precision_list'] for clf in models])
+    recall = np.array([model[clf]['recall_list'] for clf in models])
+    f1 = np.array([model[clf]['f1'] for clf in models])
 
-    plt.bar(x, y)
-    plt.title("Accuracy")
+    # Calcolo delle medie per ogni modello e metrica
+    mean_accuracy = np.mean(accuracy, axis=1)
+    mean_precision = np.mean(precision, axis=1)
+    mean_recall = np.mean(recall, axis=1)
+    mean_f1 = np.mean(f1, axis=1)
+
+    # Creazione del grafico a barre
+    bar_width = 0.2
+    index = np.arange(len(models))
+
+    plt.bar(index, mean_accuracy, bar_width, label='Accuracy')
+    plt.bar(index + bar_width, mean_precision, bar_width, label='Precision')
+    plt.bar(index + 2 * bar_width, mean_recall, bar_width, label='Recall')
+    plt.bar(index + 3 * bar_width, mean_f1, bar_width, label='F1')
+
+    # Aggiunta di etichette e legenda
+    plt.xlabel('Models')
+    plt.ylabel('Mean Scores')
+    plt.title('Mean Metrics for Each Model')
+    plt.xticks(index + 1.5 * bar_width, models)
+    plt.legend()
+
+    # Visualizzazione del grafico
     plt.show()
-    plt.clf()
-
-    #Precision
-    x = dataSet_models_concat.model
-    y = dataSet_models_concat.precision
-
-    plt.bar(x, y)
-    plt.title("Precision")
-    plt.show()
-    plt.clf()
-
-    #Recall
-    x = dataSet_models_concat.model
-    y = dataSet_models_concat.recall
-
-    plt.bar(x, y)
-    plt.title("Recall")
-    plt.show()
-    plt.clf()
-

@@ -1,11 +1,31 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 from imblearn.over_sampling import SMOTE
+from imblearn.under_sampling import RandomUnderSampler
 
-from stampe import prGreenMoreString, prRedMoreString, prYellow
+
+def underSampling(dataSet, differentialColumn):
+
+    X = dataSet.drop(columns=[differentialColumn])
+    y = dataSet[differentialColumn]
+
+    # Creazione di un oggetto RandomUnderSampler
+    under_sampler = RandomUnderSampler(random_state=42)
+
+    # Applicazione di RandomUnderSampler al dataset
+    X_resampled, y_resampled = under_sampler.fit_resample(X, y)
+
+    # Creazione di un nuovo DataFrame con i dati resampled
+    dataSet_resampled = pd.DataFrame(X_resampled, columns=X.columns)
+    dataSet_resampled[differentialColumn] = y_resampled
+
+    # Stampa in giallo la scritta "UNDERSAMPLING EFFETTUATO CON SUCCESSO"
+    print('\033[93m' + "UNDERSAMPLING EFFETTUATO CON SUCCESSO" + '\033[0m')
+
+    return dataSet_resampled
 
 
-def resampleDataset(dataSet, differentialColumn):
+def overSampling(dataSet, differentialColumn):
     dataSet.drop(dataSet[(dataSet[differentialColumn] != 0) & (
             dataSet[differentialColumn] != 1)].index, inplace=True)
 
@@ -21,35 +41,29 @@ def resampleDataset(dataSet, differentialColumn):
     # Creazione di un nuovo DataFrame con i dati resampled
     dataSet_resampled = pd.DataFrame(X_resampled, columns=X.columns)
     dataSet_resampled[differentialColumn] = y_resampled
-
-    prYellow("\nOVERSAMPLING EFFETTUATO CON SUCCESSO\n")
-
+    # stampa in giallo la scritta "OVERSAMPLING EFFETTUATO CON SUCCESSO"
+    print('\033[93m' + "OVERSAMPLING EFFETTUATO CON SUCCESSO" + '\033[0m')
     return dataSet_resampled
 
 
-def visualizeAspectRatioChart(dataSet, differentialColumn):
-    # Filtra il dataset per StressRelief e DanceEnergy
-    stress_relief_data = dataSet[dataSet[differentialColumn] == 1]
-    dance_energy_data = dataSet[dataSet[differentialColumn] == 0]
-
-    # Conta le occorrenze per ciascun mood
-    stress_relief_count = len(stress_relief_data)
-    dance_energy_count = len(dance_energy_data)
+def visualizeAspectRatioChart(dataSet, differentialColumn, title):
+    # Conta le occorrenze per ciascun valore unico di differentialColumn
+    counts = dataSet[differentialColumn].value_counts()
 
     # Etichette e colori per il grafico
-    labels = ['StressRelief', 'DanceEnergy']
-    colors = ['lightcoral', 'lightskyblue']
+    labels = counts.index.tolist()
+    colors = ['lightcoral', 'lightskyblue', 'lightgreen', 'gold', 'mediumorchid', 'lightsteelblue']  # Aggiungi altri colori se necessario
 
     # Crea il grafico a torta
-    plt.pie([stress_relief_count, dance_energy_count], labels=labels, colors=colors, autopct='%1.1f%%', startangle=90)
+    fig, ax = plt.subplots(figsize=(8, 8))  # Imposta una dimensione più grande per il grafico
+    wedges, texts, autotexts = ax.pie(counts, labels=labels, colors=colors, autopct='%1.1f%%', startangle=90)
 
-    # Aggiungi la legenda
-    plt.legend()
+    # Aggiungi la legenda nell'angolo in basso a sinistra con dimensione più piccola
+    ax.legend(labels, loc='lower left', fontsize='small')
 
     # Titolo del grafico
-    plt.title("Distribuzione di StressRelief e DanceEnergy")
+    plt.title(title)
 
     # Mostra il grafico
     plt.show()
-
 
