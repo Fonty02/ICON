@@ -34,34 +34,28 @@ def createModel():
 
 def plot_learning_curves(model, X, y, differentialColumn, model_name):
     """
-    Calcola la deviazione standard degli errori di addestramento e di test per un modello specifico.
-
-    Parameters:
-    - model: Modello addestrato
-    - X: Matrice delle feature
-    - y: Vettore delle etichette
-    - differentialColumn: Colonna differenziale da predire
-    - model_name: Nome del modello (es. 'DecisionTree', 'RandomForest', 'LogisticRegression')
+    Nel contesto delle curve di apprendimento, queste misure vengono spesso utilizzate per valutare quanto il modello sia stabile durante l'addestramento. Una bassa deviazione standard o varianza suggerisce che il modello sta generalizzando bene, mentre una deviazione standard elevata o una varianza elevata possono essere segnali di overfitting (se l'errore di addestramento è significativamente più basso dell'errore di test) o underfitting (se entrambi gli errori sono alti).
     """
 
     train_sizes, train_scores, test_scores = learning_curve(model, X, y, cv=10, scoring='accuracy')
 
-    #Calcola gli errori su addestramento e test
+    # Calcola gli errori su addestramento e test
     train_errors = 1 - train_scores
     test_errors = 1 - test_scores
 
-
-    #Calcola la deviazione standard degli errori su addestramento e test
+    # Calcola la deviazione standard e la varianza degli errori su addestramento e test
     train_errors_std = np.std(train_errors, axis=1)
     test_errors_std = np.std(test_errors, axis=1)
+    train_errors_var = np.var(train_errors, axis=1)
+    test_errors_var = np.var(test_errors, axis=1)
 
-    #Stampa i valori numerici della deviazione standard
-    print(f"{model_name} - Train Error Std: {train_errors_std[-1]}, Test Error Std: {test_errors_std[-1]}")
+    # Stampa i valori numerici della deviazione standard e della varianza
+    print(
+        f"\033[95m{model_name} - Train Error Std: {train_errors_std[-1]}, Test Error Std: {test_errors_std[-1]}, Train Error Var: {train_errors_var[-1]}, Test Error Var: {test_errors_var[-1]}\033[0m")
 
-    #Calcola gli errori medi su addestramento e test
+    # Calcola gli errori medi su addestramento e test
     mean_train_errors = 1 - np.mean(train_scores, axis=1)
     mean_test_errors = 1 - np.mean(test_scores, axis=1)
-
 
     #Visualizza la curva di apprendimento
     plt.figure(figsize=(16, 10))

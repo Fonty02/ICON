@@ -5,8 +5,9 @@ from sklearn.cluster import KMeans
 
 def regolaGomito(dataSet):
     errori_predizione = []
-    for i in range(1, 11):
-        kmeans = KMeans(n_clusters=i,n_init=10)
+    maxK=10
+    for i in range(1, maxK):
+        kmeans = KMeans(n_clusters=i,n_init=5)
         kmeans.fit(dataSet)
         errori_predizione.append(kmeans.inertia_)
 
@@ -20,7 +21,7 @@ def regolaGomito(dataSet):
             best_k = i + 1
 
     # Visualizza il grafico con la nota per il miglior k
-    plt.plot(range(1, 11), errori_predizione, 'bx-')
+    plt.plot(range(1, maxK), errori_predizione, 'bx-')
     plt.scatter(best_k, errori_predizione[best_k - 1], c='red', label=f'Miglior k: {best_k}')
     plt.xlabel('Numero di Cluster (k)')
     plt.ylabel('Somma degli errori quadrati')
