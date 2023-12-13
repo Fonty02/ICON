@@ -1,17 +1,19 @@
 #from installPackages import installPackages
 #installPackages ()
-
+import math
 import os
-import pandas as pd
 
+import pandas as pd
 from unsupervisonedLearning import calcolaCluster
 from balancingPlaylist import visualizeAspectRatioChart, overSampling , underSampling
-from bayesianNetwork import bNetCreation
+from bayesianNetwork import bNetCreation, prediciCluster
 from training import trainModelKFold
+from SpotifyAPI import estraiFeature
+
 
 # DATASET CLEANING
 fileName = os.path.join(os.path.dirname(__file__), "playlist_tracks.csv")
-dataSet = pd.read_csv(fileName, low_memory=False)
+dataSet = pd.read_csv(fileName)
 differentialColumn = "playlistName"
 
 
@@ -32,18 +34,24 @@ dataSet=dataSet.drop(columns=[differentialColumn])
 
 numeric_columns = dataSet.select_dtypes(include=['float64', 'int64']).columns
 
+def custom_scaling(value):
+    return int((math.cos(value) + 1) / 2 * 100)
+
+# Applica la funzione a ogni elemento del dataset
+dataSet = dataSet.map(custom_scaling)
+
+
 etichette_cluster, centroidi = calcolaCluster(dataSet)
+
 
 # Aggiungi la colonna con gli indici dei cluster al dataset originale
 differentialColumn = 'clusterIndex'
 dataSet[differentialColumn] = etichette_cluster
 
 
+
 new_file_path = os.path.join(os.path.dirname(__file__), "newDataset.csv")
 dataSet.to_csv(new_file_path, index=False)
-
-
-
 
 
 # Visualizza il rapporto di aspetto del dataset dopo il non supervisionato
@@ -68,8 +76,26 @@ visualizeAspectRatioChart(undersampled_dataSet, differentialColumn,"POST UNDERSA
 undersampled_model= trainModelKFold(undersampled_dataSet, differentialColumn)
 
 
+
 # BAYESIAN NETWORK
 bayesianNetwork= bNetCreation(dataSet)
+#bayesianNetwork=readBayesianNetwork()
+# PREDICTION
+esempio=estraiFeature("https://open.spotify.com/track/0qMip0B2D4ePEjBJvAtYre?si=bd2b9ffdf8ed4219")
+#esempio è un dizionario con le features della canzone.
+titolo=esempio['name']
+autore=esempio['author']
+#remove from the dictionary the name and the author
+del esempio['name']
+del esempio['author']
+#use custom scalr to scale the features of the example
+esempio = pd.DataFrame(esempio, index=[0])
+esempio = esempio.map(custom_scaling)
+#now turn esempio into a dictionary again
+esempio=esempio.to_dict('records')[0]
+prediciCluster(bayesianNetwork,esempio,"clusterIndex",dataSet)
+
+
 
 
 

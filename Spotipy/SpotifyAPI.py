@@ -208,9 +208,33 @@ def write_rule_to_file():
             file_path)
 
 
-createCSVDataset()
+"""createCSVDataset()
 prolog = Prolog()
 prolog.consult("kb.pl")
 result = list(prolog.query("titoli_danzabili_di_artista('Ricchi E Poveri', X)"))
 for l in result:
-   print(l["X"])
+   print(l["X"])"""
+
+def estraiFeature(track_uri):
+    #return a dictionary with the features of the track. Feature is the key, value is the value of the feature
+    fieldnames = ['danceability', 'energy', 'key', 'loudness', 'speechiness', 'acousticness',
+                  'instrumentalness', 'liveness', 'valence', 'tempo', 'author', 'name']
+    features = sp.audio_features(track_uri)
+    tackInfo = sp.track(track_uri)
+    danceability = features[0].get('danceability', '')
+    energy = features[0].get('energy', '')
+    key = features[0].get('key', '')
+    loudness = features[0].get('loudness', '')
+    speechiness = features[0].get('speechiness', '')
+    acousticness = features[0].get('acousticness', '')
+    instrumentalness = features[0].get('instrumentalness', '')
+    liveness = features[0].get('liveness', '')
+    valence = features[0].get('valence', '')
+    tempo = features[0].get('tempo', '')
+    author = tackInfo['artists'][0]['name']
+    name = tackInfo['name']
+    return {'danceability': danceability, 'energy': energy,
+                'key': key, 'loudness': loudness, 'speechiness': speechiness,
+                'acousticness': acousticness, 'instrumentalness': instrumentalness,
+                'liveness': liveness, 'valence': valence, 'tempo': tempo, 'author': author,
+                'name': name}
