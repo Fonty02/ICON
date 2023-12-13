@@ -3,7 +3,6 @@
 
 import os
 import pandas as pd
-from sklearn.preprocessing import MinMaxScaler
 
 from unsupervisonedLearning import calcolaCluster
 from balancingPlaylist import visualizeAspectRatioChart, overSampling , underSampling
@@ -45,7 +44,7 @@ dataSet.to_csv(new_file_path, index=False)
 
 
 
-'''
+
 
 # Visualizza il rapporto di aspetto del dataset dopo il non supervisionato
 visualizeAspectRatioChart(dataSet, differentialColumn,"Rapporto delle nuove playlist dato il clustering")
@@ -67,10 +66,11 @@ undersampled_dataSet = underSampling(dataSet, differentialColumn)
 visualizeAspectRatioChart(undersampled_dataSet, differentialColumn,"POST UNDERSAMPLING")
 # TRAINING
 undersampled_model= trainModelKFold(undersampled_dataSet, differentialColumn)
-'''
+
+
 # BAYESIAN NETWORK
 bayesianNetwork= bNetCreation(dataSet)
-#bayesianNetwork.show_graph()
+
 
 
 

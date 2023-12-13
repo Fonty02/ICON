@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV
@@ -71,7 +70,6 @@ def plot_learning_curves(model, X, y, differentialColumn, model_name):
 
 
 def returnBestHyperparametres(dataset, differentialColumn):
-
     X = dataset.drop(differentialColumn, axis=1).to_numpy()
     y = dataset[differentialColumn].to_numpy()
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
@@ -91,9 +89,9 @@ def returnBestHyperparametres(dataset, differentialColumn):
         'RandomForest__max_features': ['sqrt', 'log2', None]}
     LogisticRegressionHyperparameters = {
         'LogisticRegression__C': [0.1, 1, 10, 100, 1000],
-        'LogisticRegression__penalty': ['l1', 'l2'],
-        'LogisticRegression__solver': ['liblinear'],
-        'LogisticRegression__max_iter': [1000,10000]}
+        'LogisticRegression__penalty': ['l2'],
+        'LogisticRegression__solver': ['liblinear', 'saga', 'lbfgs'],
+        'LogisticRegression__max_iter': [100000,150000]}
     gridSearchCV_dtc = GridSearchCV(Pipeline([('DecisionTree', dtc)]), DecisionTreeHyperparameters, cv=5, n_jobs=-1)
     gridSearchCV_rfc = GridSearchCV(Pipeline([('RandomForest', rfc)]), RandomForestHyperparameters, cv=5, n_jobs=-1)
     gridSearchCV_reg = GridSearchCV(Pipeline([('scaler', StandardScaler()),('LogisticRegression', reg)]), LogisticRegressionHyperparameters, cv=5, n_jobs=-1)
@@ -141,7 +139,7 @@ def trainModelKFold(dataSet, differentialColumn):
                              solver=bestParameters['LogisticRegression__solver'],
                              max_iter=bestParameters['LogisticRegression__max_iter'])
     cv = RepeatedKFold(n_splits=5, n_repeats=5)
-    scoring_metrics = ['accuracy', 'precision', 'recall', 'f1']
+    scoring_metrics = ['accuracy', 'precision_macro', 'recall_macro', 'f1_macro']
     results_dtc = {}
     results_rfc = {}
     results_reg = {}
@@ -153,17 +151,17 @@ def trainModelKFold(dataSet, differentialColumn):
         results_rfc[metric] = scores_rfc
         results_reg[metric] = scores_reg
     model['LogisticRegression']['accuracy_list'] = (results_reg['accuracy'])
-    model['LogisticRegression']['precision_list'] = (results_reg['precision'])
-    model['LogisticRegression']['recall_list'] = (results_reg['recall'])
-    model['LogisticRegression']['f1'] = (results_reg['f1'])
+    model['LogisticRegression']['precision_list'] = (results_reg['precision_macro'])
+    model['LogisticRegression']['recall_list'] = (results_reg['recall_macro'])
+    model['LogisticRegression']['f1'] = (results_reg['f1_macro'])
     model['DecisionTree']['accuracy_list'] = (results_dtc['accuracy'])
-    model['DecisionTree']['precision_list'] = (results_dtc['precision'])
-    model['DecisionTree']['recall_list'] = (results_dtc['recall'])
-    model['DecisionTree']['f1'] = (results_dtc['f1'])
+    model['DecisionTree']['precision_list'] = (results_dtc['precision_macro'])
+    model['DecisionTree']['recall_list'] = (results_dtc['recall_macro'])
+    model['DecisionTree']['f1'] = (results_dtc['f1_macro'])
     model['RandomForest']['accuracy_list'] = (results_rfc['accuracy'])
-    model['RandomForest']['precision_list'] = (results_rfc['precision'])
-    model['RandomForest']['recall_list'] = (results_rfc['recall'])
-    model['RandomForest']['f1'] = (results_rfc['f1'])
+    model['RandomForest']['precision_list'] = (results_rfc['precision_macro'])
+    model['RandomForest']['recall_list'] = (results_rfc['recall_macro'])
+    model['RandomForest']['f1'] = (results_rfc['f1_macro'])
 
     plot_learning_curves(dtc, X, y, differentialColumn, 'DecisionTree')
     plot_learning_curves(rfc, X, y, differentialColumn, 'RandomForest')

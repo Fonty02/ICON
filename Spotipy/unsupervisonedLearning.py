@@ -4,31 +4,24 @@ from sklearn.cluster import KMeans
 
 
 def regolaGomito(dataSet):
-    errori_predizione = []
+    intertia = []
     maxK=10
     for i in range(1, maxK):
         kmeans = KMeans(n_clusters=i,n_init=5)
         kmeans.fit(dataSet)
-        errori_predizione.append(kmeans.inertia_)
-
-    # Trova il gomito considerando la massima riduzione dell'errore tra k e k-1
-    best_k = 0
-    max_reduction = 0
-    for i in range(1, len(errori_predizione) - 1):  # Modificato il range per evitare l'errore di chiave
-        reduction = errori_predizione[i - 1] - errori_predizione[i]
-        if reduction > max_reduction:
-            max_reduction = reduction
-            best_k = i + 1
+        intertia.append(kmeans.inertia_)
+    from kneed import KneeLocator
+    kl = KneeLocator(range(1, maxK), intertia, curve="convex", direction="decreasing")
 
     # Visualizza il grafico con la nota per il miglior k
-    plt.plot(range(1, maxK), errori_predizione, 'bx-')
-    plt.scatter(best_k, errori_predizione[best_k - 1], c='red', label=f'Miglior k: {best_k}')
+    plt.plot(range(1, maxK), intertia, 'bx-')
+    plt.scatter(kl.elbow, intertia[kl.elbow - 1], c='red', label=f'Miglior k: {kl.elbow}')
     plt.xlabel('Numero di Cluster (k)')
-    plt.ylabel('Somma degli errori quadrati')
+    plt.ylabel('Intertia')
     plt.title('Método del gomito per trovare il k ottimale')
     plt.legend()
     plt.show()
-    return best_k
+    return kl.elbow
 
 
 

@@ -5,6 +5,8 @@ from imblearn.under_sampling import RandomUnderSampler
 
 
 def underSampling(dataSet, differentialColumn):
+    # Filtra il dataset per includere solo le righe con valori validi nella colonna specificata
+    dataSet = dataSet.dropna(subset=[differentialColumn])
 
     X = dataSet.drop(columns=[differentialColumn])
     y = dataSet[differentialColumn]
@@ -26,8 +28,8 @@ def underSampling(dataSet, differentialColumn):
 
 
 def overSampling(dataSet, differentialColumn):
-    dataSet.drop(dataSet[(dataSet[differentialColumn] != 0) & (
-            dataSet[differentialColumn] != 1)].index, inplace=True)
+    # Filtra il dataset per includere solo le righe con valori validi nella colonna specificata
+    dataSet = dataSet.dropna(subset=[differentialColumn])
 
     X = dataSet.drop(columns=[differentialColumn])
     y = dataSet[differentialColumn]
@@ -41,10 +43,11 @@ def overSampling(dataSet, differentialColumn):
     # Creazione di un nuovo DataFrame con i dati resampled
     dataSet_resampled = pd.DataFrame(X_resampled, columns=X.columns)
     dataSet_resampled[differentialColumn] = y_resampled
-    # stampa in giallo la scritta "OVERSAMPLING EFFETTUATO CON SUCCESSO"
-    print('\033[93m' + "OVERSAMPLING EFFETTUATO CON SUCCESSO" + '\033[0m')
-    return dataSet_resampled
 
+    # Stampa in giallo la scritta "OVERSAMPLING EFFETTUATO CON SUCCESSO"
+    print('\033[93m' + "OVERSAMPLING EFFETTUATO CON SUCCESSO" + '\033[0m')
+
+    return dataSet_resampled
 
 def visualizeAspectRatioChart(dataSet, differentialColumn, title):
     # Conta le occorrenze per ciascun valore unico di differentialColumn

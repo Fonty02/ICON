@@ -9,20 +9,20 @@ from pomegranate import *
 
 def bNetCreation(dataSet):
     '''
-     #CREAZIONE
-    hc_k2= HillClimbSearch(dataSet)
-    k2_model = hc_k2.estimate(max_iter=100)
-    model = BayesianNetwork(k2_model.edges())
-    import pickle
+    #CREAZIONE
+   hc_k2= HillClimbSearch(dataSet)
+   k2_model = hc_k2.estimate(max_iter=100)
+   model = BayesianNetwork(k2_model.edges())
+   import pickle
 
-    with open("k2_model.pkl", "wb") as file:
-        pickle.dump(k2_model, file)
+   with open("k2_model.pkl", "wb") as file:
+       pickle.dump(k2_model, file)
 
 
-    # Esegui l'algoritmo di ricerca
-    hc_k2= HillClimbSearch(dataSet)
-    k2_model = hc_k2.estimate(max_iter=100)
-    '''
+   # Esegui l'algoritmo di ricerca
+   hc_k2= HillClimbSearch(dataSet)
+   k2_model = hc_k2.estimate(max_iter=100)
+   '''
 
     #LETTURA
     k2_model=0
