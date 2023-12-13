@@ -93,7 +93,7 @@ esempio = pd.DataFrame(esempio, index=[0])
 esempio = esempio.map(custom_scaling)
 #now turn esempio into a dictionary again
 esempio=esempio.to_dict('records')[0]
-prediciCluster(bayesianNetwork,esempio,"clusterIndex",dataSet)
+prediciCluster(bayesianNetwork,esempio,"clusterIndex")
 
 
 

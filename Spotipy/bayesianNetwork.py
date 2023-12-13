@@ -20,7 +20,7 @@ def bNetCreation(dataSet):
     return model
 
 
-def prediciCluster(bayesianNetwork, example, differentialColumn,dataSet):
+def prediciCluster(bayesianNetwork, example, differentialColumn):
     inference = VariableElimination(bayesianNetwork)
     # Prevedi la probabilità per ogni valore di differentialColumn dato l'esempio
     result = inference.query(variables=[differentialColumn], evidence=example)
