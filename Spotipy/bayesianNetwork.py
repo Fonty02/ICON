@@ -27,3 +27,8 @@ def prediciCluster(bayesianNetwork, example, differentialColumn):
     print(result)
 
 
+def generateRandomExample(bayesianNetwork: BayesianNetwork):
+    return bayesianNetwork.simulate(n_samples=1).drop(columns=['clusterIndex'])
+
+
+
