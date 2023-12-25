@@ -1,8 +1,8 @@
 import pickle
 
 import matplotlib.pyplot as plt
-import networkx as nx
-from pgmpy.estimators import MaximumLikelihoodEstimator
+#import networkx as nx
+from pgmpy.estimators import MaximumLikelihoodEstimator, HillClimbSearch
 from pgmpy.inference import VariableElimination
 from pgmpy.models import BayesianNetwork
 
@@ -13,12 +13,19 @@ def bNetCreation(dataSet):
     for column in dataSet.columns:
         if column != 'clusterIndex':
             edges.append(('clusterIndex', column))
-    model = BayesianNetwork(edges)
+    hc_k2=HillClimbSearch(dataSet)
+    k2_model=hc_k2.estimate(max_iter=4,fixed_edges=edges)
+    model = BayesianNetwork(k2_model.edges())
+    print("MODELLO CREATO")
     model.fit(dataSet,estimator=MaximumLikelihoodEstimator)
-
+    print("MODELLO ADATTATO")
     # Restituisci il modello adattato
     return model
 
+def readBayesianNetwork():
+    with open('modello.pkl', 'rb') as input:
+        model = pickle.load(input)
+    return model
 
 def prediciCluster(bayesianNetwork, example, differentialColumn):
     inference = VariableElimination(bayesianNetwork)

@@ -4,8 +4,9 @@
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/env" />
       <excludeFolder url="file://$MODULE_DIR$/env2" />
+      <excludeFolder url="file://$MODULE_DIR$/ProvaGPT" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.11 (IconProvee)" jdkType="Python SDK" />
+    <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>

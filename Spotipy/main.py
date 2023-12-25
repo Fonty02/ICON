@@ -6,7 +6,7 @@ import os
 import pandas as pd
 from unsupervisonedLearning import calcolaCluster
 from balancingPlaylist import visualizeAspectRatioChart, overSampling, underSampling
-from bayesianNetwork import bNetCreation, prediciCluster, generateRandomExample
+from bayesianNetwork import bNetCreation, prediciCluster, generateRandomExample, readBayesianNetwork
 from training import trainModelKFold
 from SpotifyAPI import estraiFeature
 
@@ -70,8 +70,8 @@ undersampled_model= trainModelKFold(undersampled_dataSet, differentialColumn)
 '''
 
 # BAYESIAN NETWORK
-bayesianNetwork = bNetCreation(dataSet)
-# bayesianNetwork=readBayesianNetwork()
+#bayesianNetwork = bNetCreation(dataSet)
+bayesianNetwork=readBayesianNetwork()
 # PREDICTION
 esempio = estraiFeature("https://open.spotify.com/track/0qMip0B2D4ePEjBJvAtYre?si=bd2b9ffdf8ed4219")
 # esempio è un dizionario con le features della canzone.
