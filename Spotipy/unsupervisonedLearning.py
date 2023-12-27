@@ -7,7 +7,7 @@ def regolaGomito(dataSet):
     intertia = []
     maxK=10
     for i in range(1, maxK):
-        kmeans = KMeans(n_clusters=i,n_init=5)
+        kmeans = KMeans(n_clusters=i,n_init=5,init='random')
         kmeans.fit(dataSet)
         intertia.append(kmeans.inertia_)
     from kneed import KneeLocator
@@ -18,7 +18,7 @@ def regolaGomito(dataSet):
     plt.scatter(kl.elbow, intertia[kl.elbow - 1], c='red', label=f'Miglior k: {kl.elbow}')
     plt.xlabel('Numero di Cluster (k)')
     plt.ylabel('Intertia')
-    plt.title('Método del gomito per trovare il k ottimale')
+    plt.title('Metodo del gomito per trovare il k ottimale')
     plt.legend()
     plt.show()
     return kl.elbow
@@ -28,7 +28,7 @@ def regolaGomito(dataSet):
 #restituisci per ogni elemento del dataset il cluster di appartenenza e le labels dei centroidi
 def calcolaCluster(dataSet):
     k=regolaGomito(dataSet)
-    km = KMeans(n_clusters=k,n_init=10)
+    km = KMeans(n_clusters=k,n_init=10,init='random')
     km = km.fit(dataSet)
     etichette = km.labels_
     centroidi = km.cluster_centers_

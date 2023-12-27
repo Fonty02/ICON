@@ -50,13 +50,14 @@ dataSet[differentialColumn] = etichette_cluster
 new_file_path = os.path.join(os.path.dirname(__file__), "newDataset.csv")
 dataSet.to_csv(new_file_path, index=False)
 
-'''
+
 # Visualizza il rapporto di aspetto del dataset dopo il non supervisionato
 visualizeAspectRatioChart(dataSet, differentialColumn,"Rapporto delle nuove playlist dato il clustering")
+
 # TRAINING
 model= trainModelKFold(dataSet, differentialColumn)
 
-
+'''
 # Eseguo oversamping del dataset per bilanciare le classi
 oversampled_dataSet = overSampling(dataSet, differentialColumn)
 # Visualizza il rapporto di aspetto del dataset dopo il bilanciamento
@@ -71,7 +72,7 @@ undersampled_dataSet = underSampling(dataSet, differentialColumn)
 visualizeAspectRatioChart(undersampled_dataSet, differentialColumn,"POST UNDERSAMPLING")
 # TRAINING
 undersampled_model= trainModelKFold(undersampled_dataSet, differentialColumn)
-'''
+
 
 # BAYESIAN NETWORK
 #bayesianNetwork = bNetCreation(dataSet)
@@ -123,3 +124,4 @@ print("ESEMPIO RANDOMICO SENZA ENERGY ----> ",inverseScaled)
 
 print("PREDIZIONE DEL SAMPLE RANDOM SENZA ENERGY")
 prediciCluster(bayesianNetwork, esempioRandom.to_dict('records')[0], "clusterIndex")
+'''

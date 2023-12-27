@@ -77,37 +77,38 @@ def returnBestHyperparametres(dataset, differentialColumn):
     rfc = RandomForestClassifier()
     reg = LogisticRegression()
     DecisionTreeHyperparameters = {
+        'DecisionTree__criterion': ['gini', 'entropy','log_loss'],
         'DecisionTree__max_depth': [None, 5, 10],
         'DecisionTree__min_samples_split': [2, 5, 10, 20],
         'DecisionTree__min_samples_leaf': [1, 2, 5, 10, 20],
-        'DecisionTree__max_features': [ 'sqrt', 'log2', None]}
+        'DecisionTree__splitter': ['best']}
     RandomForestHyperparameters = {
-        'RandomForest__n_estimators': [10, 20],
+        'RandomForest__criterion': ['gini', 'entropy','log_loss'],
+        'RandomForest__n_estimators': [10, 20,50],
         'RandomForest__max_depth': [None, 5, 10],
         'RandomForest__min_samples_split': [2, 5, 10, 20],
-        'RandomForest__min_samples_leaf': [1, 2, 5, 10, 20],
-        'RandomForest__max_features': ['sqrt', 'log2', None]}
+        'RandomForest__min_samples_leaf': [1, 2, 5, 10, 20]}
     LogisticRegressionHyperparameters = {
-        'LogisticRegression__C': [0.1, 1, 10, 100, 1000],
+        'LogisticRegression__C': [0.001, 0.01, 0.1, 1, 10, 100],
         'LogisticRegression__penalty': ['l2'],
-        'LogisticRegression__solver': ['liblinear', 'saga', 'lbfgs'],
+        'LogisticRegression__solver': ['liblinear', 'lbfgs'],
         'LogisticRegression__max_iter': [100000,150000]}
-    gridSearchCV_dtc = GridSearchCV(Pipeline([('DecisionTree', dtc)]), DecisionTreeHyperparameters, cv=5, n_jobs=-1)
-    gridSearchCV_rfc = GridSearchCV(Pipeline([('RandomForest', rfc)]), RandomForestHyperparameters, cv=5, n_jobs=-1)
-    gridSearchCV_reg = GridSearchCV(Pipeline([('scaler', StandardScaler()),('LogisticRegression', reg)]), LogisticRegressionHyperparameters, cv=5, n_jobs=-1)
+    gridSearchCV_dtc = GridSearchCV(Pipeline([('DecisionTree', dtc)]), DecisionTreeHyperparameters, cv=5)
+    gridSearchCV_rfc = GridSearchCV(Pipeline([('RandomForest', rfc)]), RandomForestHyperparameters, cv=5)
+    gridSearchCV_reg = GridSearchCV(Pipeline([('LogisticRegression', reg)]), LogisticRegressionHyperparameters, cv=5)
     gridSearchCV_dtc.fit(X_train, y_train)
     gridSearchCV_rfc.fit(X_train, y_train)
     gridSearchCV_reg.fit(X_train, y_train)
     bestParameters = {
+        'DecisionTree__criterion': gridSearchCV_dtc.best_params_['DecisionTree__criterion'],
         'DecisionTree__max_depth': gridSearchCV_dtc.best_params_['DecisionTree__max_depth'],
         'DecisionTree__min_samples_split': gridSearchCV_dtc.best_params_['DecisionTree__min_samples_split'],
         'DecisionTree__min_samples_leaf': gridSearchCV_dtc.best_params_['DecisionTree__min_samples_leaf'],
-        'DecisionTree__max_features': gridSearchCV_dtc.best_params_['DecisionTree__max_features'],
         'RandomForest__n_estimators': gridSearchCV_rfc.best_params_['RandomForest__n_estimators'],
         'RandomForest__max_depth': gridSearchCV_rfc.best_params_['RandomForest__max_depth'],
         'RandomForest__min_samples_split': gridSearchCV_rfc.best_params_['RandomForest__min_samples_split'],
         'RandomForest__min_samples_leaf': gridSearchCV_rfc.best_params_['RandomForest__min_samples_leaf'],
-        'RandomForest__max_features': gridSearchCV_rfc.best_params_['RandomForest__max_features'],
+        'RandomForest__criterion': gridSearchCV_rfc.best_params_['RandomForest__criterion'],
         'LogisticRegression__C': gridSearchCV_reg.best_params_['LogisticRegression__C'],
         'LogisticRegression__penalty': gridSearchCV_reg.best_params_['LogisticRegression__penalty'],
         'LogisticRegression__solver': gridSearchCV_reg.best_params_['LogisticRegression__solver'],
@@ -125,15 +126,16 @@ def trainModelKFold(dataSet, differentialColumn):
     print("\033[94m"+str(bestParameters)+"\033[0m")
     X = dataSet.drop(differentialColumn, axis=1).to_numpy()
     y = dataSet[differentialColumn].to_numpy()
-    dtc = DecisionTreeClassifier(max_depth=bestParameters['DecisionTree__max_depth'],
+    dtc = DecisionTreeClassifier(criterion=bestParameters['DecisionTree__criterion'],
+                                 splitter='best',
+                                 max_depth=bestParameters['DecisionTree__max_depth'],
                                  min_samples_split=bestParameters['DecisionTree__min_samples_split'],
-                                 min_samples_leaf=bestParameters['DecisionTree__min_samples_leaf'],
-                                 max_features=bestParameters['DecisionTree__max_features'])
+                                 min_samples_leaf=bestParameters['DecisionTree__min_samples_leaf'])
     rfc = RandomForestClassifier(n_estimators=bestParameters['RandomForest__n_estimators'],
                                  max_depth=bestParameters['RandomForest__max_depth'],
                                  min_samples_split=bestParameters['RandomForest__min_samples_split'],
                                  min_samples_leaf=bestParameters['RandomForest__min_samples_leaf'],
-                                 max_features=bestParameters['RandomForest__max_features'])
+                                criterion=bestParameters['RandomForest__criterion'])
     reg = LogisticRegression(C=bestParameters['LogisticRegression__C'],
                              penalty=bestParameters['LogisticRegression__penalty'],
                              solver=bestParameters['LogisticRegression__solver'],
