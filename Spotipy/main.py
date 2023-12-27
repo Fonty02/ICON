@@ -70,8 +70,8 @@ undersampled_model= trainModelKFold(undersampled_dataSet, differentialColumn)
 '''
 
 # BAYESIAN NETWORK
-#bayesianNetwork = bNetCreation(dataSet)
-bayesianNetwork=readBayesianNetwork()
+bayesianNetwork = bNetCreation(dataSet)
+#bayesianNetwork=readBayesianNetwork()
 # PREDICTION
 esempio = estraiFeature("https://open.spotify.com/track/0qMip0B2D4ePEjBJvAtYre?si=bd2b9ffdf8ed4219")
 # esempio è un dizionario con le features della canzone.

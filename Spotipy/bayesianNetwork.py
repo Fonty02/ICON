@@ -13,9 +13,15 @@ def bNetCreation(dataSet):
     for column in dataSet.columns:
         if column != 'clusterIndex':
             edges.append(('clusterIndex', column))
-    hc_k2=HillClimbSearch(dataSet)
-    k2_model=hc_k2.estimate(max_iter=4,fixed_edges=edges)
-    model = BayesianNetwork(k2_model.edges())
+    '''hc_k2=HillClimbSearch(dataSet)
+    k2_model=hc_k2.estimate(max_iter=4,fixed_edges=edges)'''
+    edges.append(('tempo','danceability'))
+    edges.append(('energy','danceability'))
+    edges.append(('energy','loudness'))
+    edges.append(('instrumentalness','speechiness'))
+    edges.append(('liveness','acousticness'))
+    edges.append(('danceability','valence'))
+    model = BayesianNetwork(edges)
     print("MODELLO CREATO")
     model.fit(dataSet,estimator=MaximumLikelihoodEstimator)
     print("MODELLO ADATTATO")
