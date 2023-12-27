@@ -3,7 +3,10 @@
 import math
 import os
 
+import numpy as np
 import pandas as pd
+from sklearn.preprocessing import MinMaxScaler
+
 from unsupervisonedLearning import calcolaCluster
 from balancingPlaylist import visualizeAspectRatioChart, overSampling, underSampling
 from bayesianNetwork import bNetCreation, prediciCluster, generateRandomExample, readBayesianNetwork
@@ -29,13 +32,14 @@ dataSet = dataSet.drop(columns=[differentialColumn])
 
 numeric_columns = dataSet.select_dtypes(include=['float64', 'int64']).columns
 
+scaler=MinMaxScaler()
 
 def custom_scaling(value):
     return int((math.cos(value) + 1) / 2 * 100)
 
 
 # Applica la funzione a ogni elemento del dataset
-dataSet = dataSet.map(custom_scaling)
+dataSet[:] = scaler.fit_transform(dataSet)
 
 etichette_cluster, centroidi = calcolaCluster(dataSet)
 
@@ -70,8 +74,8 @@ undersampled_model= trainModelKFold(undersampled_dataSet, differentialColumn)
 '''
 
 # BAYESIAN NETWORK
-bayesianNetwork = bNetCreation(dataSet)
-#bayesianNetwork=readBayesianNetwork()
+#bayesianNetwork = bNetCreation(dataSet)
+bayesianNetwork=readBayesianNetwork()
 # PREDICTION
 esempio = estraiFeature("https://open.spotify.com/track/0qMip0B2D4ePEjBJvAtYre?si=bd2b9ffdf8ed4219")
 # esempio è un dizionario con le features della canzone.
@@ -82,9 +86,12 @@ del esempio['name']
 del esempio['author']
 # use custom scalr to scale the features of the example
 esempio = pd.DataFrame(esempio, index=[0])
-esempio = esempio.map(custom_scaling)
-# now turn esempio into a dictionary again
-esempio = esempio.to_dict('records')[0]
+esempio = scaler.transform(esempio)
+# now turn esempio into a dictionary in esempioDict
+esempioDict = {}
+for i in range(len(esempio[0])):
+    esempioDict[numeric_columns[i]] = esempio[0][i]
+esempio = esempioDict
 print("PREDIZIONE DELLA CANZONE: " + titolo + " DI " + autore)
 prediciCluster(bayesianNetwork, esempio, "clusterIndex")
 
@@ -99,18 +106,20 @@ def inverse_custom_scaling(scaled_value):
 
 esempioRandom = generateRandomExample(bayesianNetwork)
 
-inverseScaled = {key: inverse_custom_scaling(value) for key, value in esempioRandom.items()}
+inverseScaled = scaler.inverse_transform(esempioRandom)
 
 # Stampa il nuovo dizionario a schermo
-print(inverseScaled)
+print("ESEMPIO RANDOMICO GENERATO --->  ",inverseScaled)
 
 print("PREDIZIONE DEL SAMPLE RANDOM")
 prediciCluster(bayesianNetwork, esempioRandom.to_dict('records')[0], "clusterIndex")
-
+index=numeric_columns.get_loc('energy')
 del(esempioRandom['energy'])
-del(inverseScaled['energy'])
+#remove indexth-element from inverseScaled
+inverseScaled=np.delete(inverseScaled,index)
+
 # Stampa il nuovo dizionario a schermo
-print(inverseScaled)
+print("ESEMPIO RANDOMICO SENZA ENERGY ----> ",inverseScaled)
 
 print("PREDIZIONE DEL SAMPLE RANDOM SENZA ENERGY")
-prediciCluster(bayesianNetwork, esempio, "clusterIndex")
+prediciCluster(bayesianNetwork, esempioRandom.to_dict('records')[0], "clusterIndex")

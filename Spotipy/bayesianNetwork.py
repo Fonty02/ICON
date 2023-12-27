@@ -23,10 +23,9 @@ def bNetCreation(dataSet):
     edges.append(('liveness','acousticness'))
     edges.append(('danceability','valence'))
     model = BayesianNetwork(edges)
-    print("MODELLO CREATO")
     model.fit(dataSet,estimator=MaximumLikelihoodEstimator)
-    print("MODELLO ADATTATO")
-    # Restituisci il modello adattato
+    with open('modello.pkl', 'wb') as output:
+        pickle.dump(model, output)
     return model
 
 def readBayesianNetwork():
