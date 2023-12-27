@@ -1,10 +1,11 @@
 import pickle
 
-import matplotlib.pyplot as plt
+
 #import networkx as nx
-from pgmpy.estimators import MaximumLikelihoodEstimator, HillClimbSearch
+from pgmpy.estimators import MaximumLikelihoodEstimator
 from pgmpy.inference import VariableElimination
 from pgmpy.models import BayesianNetwork
+
 
 
 def bNetCreation(dataSet):
