@@ -1,0 +1,8 @@
+matplotlib
+networkx
+numpy
+pandas
+pgmpy
+scikit_learn
+spotipy
+tqdm
