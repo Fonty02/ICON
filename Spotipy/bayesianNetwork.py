@@ -1,13 +1,12 @@
 import pickle
-
-
 import networkx as nx
-import numpy as np
 from matplotlib import pyplot as plt
 from pgmpy.estimators import MaximumLikelihoodEstimator
 from pgmpy.inference import VariableElimination
 from pgmpy.models import BayesianNetwork
 
+
+# Funzione che visualizza il grafo del Bayesian Network
 def visualizeBayesianNetwork(bayesianNetwork: BayesianNetwork):
     G = nx.MultiDiGraph(bayesianNetwork.edges())
     pos = nx.spring_layout(G, iterations=100, k=2,
@@ -40,14 +39,19 @@ def visualizeBayesianNetwork(bayesianNetwork: BayesianNetwork):
     plt.show()
     plt.clf()
 
+
+# Funzione che crea la rete bayesiana
 def bNetCreation(dataSet):
-    # Crea archi in modo tale che ogni feature dipenda da clusterIndex
+    # Creo gli archi in base alla struttura da me scelta
     edges = []
     for column in dataSet.columns:
         if column != 'clusterIndex':
             edges.append(('clusterIndex', column))
-    '''hc_k2=HillClimbSearch(dataSet)
-    k2_model=hc_k2.estimate(max_iter=4)'''
+    '''
+        Vecchie prove che fallivano per mancanza di risorse
+    hc_k2=HillClimbSearch(dataSet)
+    k2_model=hc_k2.estimate(max_iter=4)
+    '''
     edges.append(('tempo','danceability'))
     edges.append(('energy','danceability'))
     edges.append(('loudness','energy'))
@@ -57,28 +61,29 @@ def bNetCreation(dataSet):
     edges.append(('speechiness','liveness'))
     edges.append(('loudness','liveness'))
     edges.append(('danceability','valence'))
-
     model = BayesianNetwork(edges)
     model.fit(dataSet,estimator=MaximumLikelihoodEstimator,n_jobs=-1)
+    #Salvo la rete bayesiana su file
     with open('modello.pkl', 'wb') as output:
         pickle.dump(model, output)
     visualizeBayesianNetwork(model)
     return model
 
 
-
+#Funzione che legge la rete bayesiana da file
 def readBayesianNetwork():
     with open('modello.pkl', 'rb') as input:
         model = pickle.load(input)
     visualizeBayesianNetwork(model)
     return model
 
-def prediciCluster(bayesianNetwork: BayesianNetwork, example, differentialColumn):
+#Predico il valore di differentialColumn per l'esempio
+def predici(bayesianNetwork: BayesianNetwork, example, differentialColumn):
     inference = VariableElimination(bayesianNetwork)
     result = inference.query(variables=[differentialColumn], evidence=example)
     print(result)
 
-
+#genera un esempio randomico
 def generateRandomExample(bayesianNetwork: BayesianNetwork):
     return bayesianNetwork.simulate(n_samples=1).drop(columns=['clusterIndex'])
 

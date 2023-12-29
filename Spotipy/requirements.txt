@@ -6,3 +6,5 @@ pgmpy
 scikit_learn
 spotipy
 tqdm
+pyswip
+imblearn

@@ -5,37 +5,13 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import RepeatedKFold, learning_curve, train_test_split, cross_val_score
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
 from sklearn.tree import DecisionTreeClassifier
 
 
-def createModel():
-    model = {
-        'DecisionTree': {'accuracy': 0.0,
-                         'precision': 0.0,
-                         'recall': 0.0,
-                         'f1': 0.0
-                         },
 
-        'RandomForest': {'accuracy': 0.0,
-                         'precision': 0.0,
-                         'recall': 0.0,
-                         'f1': 0.0
-                         },
-        'LogisticRegression': {'accuracy': 0.0,
-                                'precision': 0.0,
-                                'recall': 0.0,
-                         'f1': 0.0
-                                }
-    }
 
-    return model
-
+#Funzione che mostra la curva di apprendimento per ogni modello
 def plot_learning_curves(model, X, y, differentialColumn, model_name):
-    """
-    Nel contesto delle curve di apprendimento, queste misure vengono spesso utilizzate per valutare quanto il modello sia stabile durante l'addestramento. Una bassa deviazione standard o varianza suggerisce che il modello sta generalizzando bene, mentre una deviazione standard elevata o una varianza elevata possono essere segnali di overfitting (se l'errore di addestramento è significativamente più basso dell'errore di test) o underfitting (se entrambi gli errori sono alti).
-    """
-
     train_sizes, train_scores, test_scores = learning_curve(model, X, y, cv=10, scoring='accuracy')
 
     # Calcola gli errori su addestramento e test
@@ -58,17 +34,17 @@ def plot_learning_curves(model, X, y, differentialColumn, model_name):
 
     #Visualizza la curva di apprendimento
     plt.figure(figsize=(16, 10))
-    plt.plot(train_sizes, mean_train_errors, label='Train Error', color='green')
-    plt.plot(train_sizes, mean_test_errors, label='Test Error', color='red')
-    plt.title(f'Learning Curve for {model_name}')
-    plt.xlabel('Training Set Size')
-    plt.ylabel('Error')
+    plt.plot(train_sizes, mean_train_errors, label='Errore di training', color='green')
+    plt.plot(train_sizes, mean_test_errors, label='Errore di testing', color='red')
+    plt.title(f'Curva di apprendimento per {model_name}')
+    plt.xlabel('Dimensione del training set')
+    plt.ylabel('Errore')
     plt.legend()
     plt.show()
 
 
 
-
+#Funzione che restituisce i migliori iperparametri per ogni modello
 def returnBestHyperparametres(dataset, differentialColumn):
     X = dataset.drop(differentialColumn, axis=1).to_numpy()
     y = dataset[differentialColumn].to_numpy()
@@ -118,9 +94,28 @@ def returnBestHyperparametres(dataset, differentialColumn):
 
 
 
-
+#Funzione che esegue il training del modello mediante cross validation
 def trainModelKFold(dataSet, differentialColumn):
-    model = createModel()
+    model={
+        'DecisionTree':{
+            'accuracy_list':[],
+            'precision_list':[],
+            'recall_list':[],
+            'f1':[]
+        },
+        'RandomForest':{
+            'accuracy_list':[],
+            'precision_list':[],
+            'recall_list':[],
+            'f1':[]
+        },
+        'LogisticRegression':{
+            'accuracy_list':[],
+            'precision_list':[],
+            'recall_list':[],
+            'f1':[]
+        }
+    }
     bestParameters = returnBestHyperparametres(dataSet, differentialColumn)
     #print bestParamestre in blue
     print("\033[94m"+str(bestParameters)+"\033[0m")
@@ -164,16 +159,13 @@ def trainModelKFold(dataSet, differentialColumn):
     model['RandomForest']['precision_list'] = (results_rfc['precision_macro'])
     model['RandomForest']['recall_list'] = (results_rfc['recall_macro'])
     model['RandomForest']['f1'] = (results_rfc['f1_macro'])
-
     plot_learning_curves(dtc, X, y, differentialColumn, 'DecisionTree')
     plot_learning_curves(rfc, X, y, differentialColumn, 'RandomForest')
     plot_learning_curves(reg, X, y, differentialColumn, 'LogisticRegression')
-
     visualizeMetricsGraphs(model)
-
     return model
 
-
+#Funzione che visualizza i grafici delle metriche per ogni modello
 def visualizeMetricsGraphs(model):
     models = list(model.keys())
 
@@ -192,16 +184,14 @@ def visualizeMetricsGraphs(model):
     # Creazione del grafico a barre
     bar_width = 0.2
     index = np.arange(len(models))
-
     plt.bar(index, mean_accuracy, bar_width, label='Accuracy')
     plt.bar(index + bar_width, mean_precision, bar_width, label='Precision')
     plt.bar(index + 2 * bar_width, mean_recall, bar_width, label='Recall')
     plt.bar(index + 3 * bar_width, mean_f1, bar_width, label='F1')
-
     # Aggiunta di etichette e legenda
-    plt.xlabel('Models')
-    plt.ylabel('Mean Scores')
-    plt.title('Mean Metrics for Each Model')
+    plt.xlabel('Modelli')
+    plt.ylabel('Punteggi medi')
+    plt.title('Punteggio medio per ogni modello')
     plt.xticks(index + 1.5 * bar_width, models)
     plt.legend()
 
