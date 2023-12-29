@@ -4,27 +4,6 @@ from imblearn.over_sampling import SMOTE
 from imblearn.under_sampling import RandomUnderSampler
 
 
-def underSampling(dataSet, differentialColumn):
-    # Filtra il dataset per includere solo le righe con valori validi nella colonna specificata
-    dataSet = dataSet.dropna(subset=[differentialColumn])
-
-    X = dataSet.drop(columns=[differentialColumn])
-    y = dataSet[differentialColumn]
-
-    # Creazione di un oggetto RandomUnderSampler
-    under_sampler = RandomUnderSampler(random_state=42)
-
-    # Applicazione di RandomUnderSampler al dataset
-    X_resampled, y_resampled = under_sampler.fit_resample(X, y)
-
-    # Creazione di un nuovo DataFrame con i dati resampled
-    dataSet_resampled = pd.DataFrame(X_resampled, columns=X.columns)
-    dataSet_resampled[differentialColumn] = y_resampled
-
-    # Stampa in giallo la scritta "UNDERSAMPLING EFFETTUATO CON SUCCESSO"
-    print('\033[93m' + "UNDERSAMPLING EFFETTUATO CON SUCCESSO" + '\033[0m')
-
-    return dataSet_resampled
 
 
 def overSampling(dataSet, differentialColumn):
