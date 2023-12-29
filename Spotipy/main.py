@@ -72,8 +72,6 @@ visualizeAspectRatioChart(dataSet, differentialColumn,"Rapporto delle nuove play
 
 # TRAINING
 model= trainModelKFold(dataSet, differentialColumn)
-
-
 # Eseguo oversamping del dataset per bilanciare le classi
 oversampled_dataSet = overSampling(dataSet, differentialColumn)
 # Visualizza il rapporto di aspetto del dataset dopo il bilanciamento
