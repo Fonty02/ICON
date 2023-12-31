@@ -13,7 +13,7 @@ from training import trainModelKFold
 scaler=MinMaxScaler()
 
 # DATASET CLEANING
-#createCSVDataset()
+createCSVDataset()
 fileName = os.path.join(os.path.dirname(__file__), "playlist_tracks.csv")
 dataSet = pd.read_csv(fileName)
 differentialColumn = "playlistName"
