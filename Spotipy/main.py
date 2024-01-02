@@ -5,10 +5,10 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 from Spotipy.SpotifyProlog import estraiFeature, createCSVDataset, writeSongsInfo,writeClusterInfo,writeRules
-from unsupervisonedLearning import calcolaCluster
+from unsupervisedLearning import calcolaCluster
 from balancingPlaylist import visualizeAspectRatioChart, overSampling
 from bayesianNetwork import bNetCreation, predici, generateRandomExample, readBayesianNetwork
-from training import trainModelKFold
+from supervisedLearning import trainModelKFold
 
 scaler=MinMaxScaler()
 

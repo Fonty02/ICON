@@ -18,7 +18,7 @@ def regolaGomito(dataSet):
     plt.plot(range(1, maxK), intertia, 'bx-')
     plt.scatter(kl.elbow, intertia[kl.elbow - 1], c='red', label=f'Miglior k: {kl.elbow}')
     plt.xlabel('Numero di Cluster (k)')
-    plt.ylabel('Intertia')
+    plt.ylabel('Inertia')
     plt.title('Metodo del gomito per trovare il k ottimale')
     plt.legend()
     plt.show()
