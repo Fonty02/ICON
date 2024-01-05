@@ -39,6 +39,14 @@ def visualizeBayesianNetwork(bayesianNetwork: BayesianNetwork):
     plt.show()
     plt.clf()
 
+def visualizeInfo(bayesianNetwork: BayesianNetwork):
+    # Ottengo le distribuzioni di probabilità condizionata (CPD)
+    cpd_list = bayesianNetwork.get_cpds()
+    for cpd in cpd_list:
+        print(f"\nCPD per la variabile '{cpd.variable}':")
+        print(cpd)
+        print("=" * 40)
+
 
 # Funzione che crea la rete bayesiana
 def bNetCreation(dataSet):
@@ -67,6 +75,7 @@ def bNetCreation(dataSet):
     with open('modello.pkl', 'wb') as output:
         pickle.dump(model, output)
     visualizeBayesianNetwork(model)
+    #visualizeInfo(model)
     return model
 
 
@@ -75,6 +84,7 @@ def readBayesianNetwork():
     with open('modello.pkl', 'rb') as input:
         model = pickle.load(input)
     visualizeBayesianNetwork(model)
+    #visualizeInfo(model)
     return model
 
 #Predico il valore di differentialColumn per l'esempio
