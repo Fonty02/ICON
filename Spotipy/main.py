@@ -1,7 +1,6 @@
 from installLibreries import installPackages
 #installPackages()
 import os
-import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler, KBinsDiscretizer
 from Spotipy.SpotifyProlog import estraiFeature, createCSVDataset, writeSongsInfo,writeClusterInfo,writeRules
@@ -50,7 +49,7 @@ dataSet[differentialColumn] = etichette_cluster
 new_file_path = os.path.join(os.path.dirname(__file__), "newDataset.csv")
 dataSet.to_csv(new_file_path, index=False)
 
-'''
+
 #Termino la parte di ragionamento logico
 writeClusterInfo(dataSet)
 writeRules()
@@ -68,7 +67,7 @@ oversampled_dataSet = overSampling(dataSet, differentialColumn)
 visualizeAspectRatioChart(oversampled_dataSet, differentialColumn,"POST OVERSAMPLING")
 #Addestro e valuto i modelli dopo l'oversampling
 oversampled_dataSet= trainModelKFold(oversampled_dataSet, differentialColumn)
-'''
+
 
 # RAGIONAMENTO PROBABILISTICO
 
