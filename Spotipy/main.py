@@ -3,11 +3,11 @@ from installLibreries import installPackages
 import os
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler, KBinsDiscretizer
 from Spotipy.SpotifyProlog import estraiFeature, createCSVDataset, writeSongsInfo,writeClusterInfo,writeRules
 from unsupervisedLearning import calcolaCluster
 from balancingPlaylist import visualizeAspectRatioChart, overSampling
-from bayesianNetwork import bNetCreation, predici, generateRandomExample, readBayesianNetwork
+from bayesianNetwork import bNetCreation, predici, generateRandomExample
 from supervisedLearning import trainModelKFold
 
 scaler=MinMaxScaler()
@@ -50,6 +50,7 @@ dataSet[differentialColumn] = etichette_cluster
 new_file_path = os.path.join(os.path.dirname(__file__), "newDataset.csv")
 dataSet.to_csv(new_file_path, index=False)
 
+'''
 #Termino la parte di ragionamento logico
 writeClusterInfo(dataSet)
 writeRules()
@@ -67,22 +68,22 @@ oversampled_dataSet = overSampling(dataSet, differentialColumn)
 visualizeAspectRatioChart(oversampled_dataSet, differentialColumn,"POST OVERSAMPLING")
 #Addestro e valuto i modelli dopo l'oversampling
 oversampled_dataSet= trainModelKFold(oversampled_dataSet, differentialColumn)
-
+'''
 
 # RAGIONAMENTO PROBABILISTICO
 
+#discretizzo il dataset
+discretizer = KBinsDiscretizer(encode='ordinal', strategy='uniform')
+continuos_columns = dataSet.select_dtypes(include=['float64', 'int64']).columns
+dataSet[continuos_columns] = discretizer.fit_transform(dataSet[continuos_columns])
 
-#Leggo o creo la rete bayesiana a seconda delle necessità
+#Creo la rete bayesiana a seconda delle necessità
 bayesianNetwork = bNetCreation(dataSet)
-#bayesianNetwork=readBayesianNetwork()
 
 # TASK DI CLASSIFICAZIONE
 
-#ESEMPIO CHE GENERA ERRORE
-#esempio = estraiFeature("https://open.spotify.com/track/45bE4HXI0AwGZXfZtMp8JR?si=667b1cdc1f9140d8")
-
-#ESEMPIO CHE FUNZIONA
-esempio = estraiFeature("https://open.spotify.com/track/3CRDbSIZ4r5MsZ0YwxuEkn?si=daf548cffbc44fa3")
+#ESEMPIO
+esempio = estraiFeature("https://open.spotify.com/track/7B3z0ySL9Rr0XvZEAjWZzM?si=1177284771bb4b0b")
 # esempio è un dizionario con le features della canzone.
 titolo = esempio['name']
 autore = esempio['author']
@@ -90,21 +91,21 @@ del esempio['name']
 del esempio['author']
 esempio = pd.DataFrame(esempio, index=[0])
 esempio[:] = scaler.transform(esempio)
+#discretizzo l'esempio
+esempio[continuos_columns] = discretizer.transform(esempio[continuos_columns])
 esempio = esempio.to_dict('records')[0]
+print("ESEMPIO ---> ",esempio)
 print("PREDIZIONE DELLA CANZONE: " + titolo + " DI " + autore)
 predici(bayesianNetwork, esempio, "clusterIndex")
 
 #GENERAZIONE DI UN ESEMPIO RANDOMICO e PREDIZIONE DELLA SUA CLASSE
 esempioRandom = generateRandomExample(bayesianNetwork)
-inverseScaled = scaler.inverse_transform(esempioRandom)
-print("ESEMPIO RANDOMICO GENERATO --->  ",inverseScaled)
+print("ESEMPIO RANDOMICO GENERATO --->  ",esempioRandom)
 print("PREDIZIONE DEL SAMPLE RANDOM")
 predici(bayesianNetwork, esempioRandom.to_dict('records')[0], "clusterIndex")
 
 #RIMOZIONE DI UNA FEATURE E PREDIZIONE DELLA SUA CLASSE
-index=numeric_columns.get_loc('energy')
-del(esempioRandom['energy'])
-inverseScaled=np.delete(inverseScaled,index)
-print("ESEMPIO RANDOMICO SENZA ENERGY ----> ",inverseScaled)
-print("PREDIZIONE DEL SAMPLE RANDOM SENZA ENERGY")
+del(esempioRandom['tempo'])
+print("ESEMPIO RANDOMICO SENZA TEMPO ----> ",esempioRandom)
+print("PREDIZIONE DEL SAMPLE RANDOM SENZA TEMPO")
 predici(bayesianNetwork, esempioRandom.to_dict('records')[0], "clusterIndex")

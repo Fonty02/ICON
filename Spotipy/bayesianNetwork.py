@@ -1,9 +1,10 @@
 import pickle
 import networkx as nx
 from matplotlib import pyplot as plt
-from pgmpy.estimators import MaximumLikelihoodEstimator
+from pgmpy.estimators import MaximumLikelihoodEstimator, HillClimbSearch
 from pgmpy.inference import VariableElimination
 from pgmpy.models import BayesianNetwork
+
 
 
 # Funzione che visualizza il grafo del Bayesian Network
@@ -51,15 +52,10 @@ def visualizeInfo(bayesianNetwork: BayesianNetwork):
 # Funzione che crea la rete bayesiana
 def bNetCreation(dataSet):
     # Creo gli archi in base alla struttura da me scelta
-    edges = []
+    '''edges = []
     for column in dataSet.columns:
         if column != 'clusterIndex':
             edges.append(('clusterIndex', column))
-    '''
-        Vecchie prove che fallivano per mancanza di risorse
-    hc_k2=HillClimbSearch(dataSet)
-    k2_model=hc_k2.estimate(max_iter=4)
-    '''
     edges.append(('tempo','danceability'))
     edges.append(('energy','danceability'))
     edges.append(('loudness','energy'))
@@ -68,8 +64,11 @@ def bNetCreation(dataSet):
     edges.append(('liveness','acousticness'))
     edges.append(('speechiness','liveness'))
     edges.append(('loudness','liveness'))
-    edges.append(('danceability','valence'))
-    model = BayesianNetwork(edges)
+    edges.append(('danceability','valence'))'''
+    # Inizializza l'encoder
+    hc_k2=HillClimbSearch(dataSet)
+    k2_model=hc_k2.estimate(scoring_method='k2score')
+    model = BayesianNetwork(k2_model.edges())
     model.fit(dataSet,estimator=MaximumLikelihoodEstimator,n_jobs=-1)
     #Salvo la rete bayesiana su file
     with open('modello.pkl', 'wb') as output:
@@ -79,13 +78,6 @@ def bNetCreation(dataSet):
     return model
 
 
-#Funzione che legge la rete bayesiana da file
-def readBayesianNetwork():
-    with open('modello.pkl', 'rb') as input:
-        model = pickle.load(input)
-    visualizeBayesianNetwork(model)
-    #visualizeInfo(model)
-    return model
 
 #Predico il valore di differentialColumn per l'esempio
 def predici(bayesianNetwork: BayesianNetwork, example, differentialColumn):
