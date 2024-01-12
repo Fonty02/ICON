@@ -79,8 +79,8 @@ continuos_columns = dataSet.select_dtypes(include=['float64', 'int64']).columns
 dataSet[continuos_columns] = discretizer.fit_transform(dataSet[continuos_columns])
 
 #Creo o leggo la rete bayesiana a seconda delle necessità
-bayesianNetwork = bNetCreation(dataSet)
-#bayesianNetwork=loadBayesianNetwork()
+#bayesianNetwork = bNetCreation(dataSet)
+bayesianNetwork=loadBayesianNetwork()
 # TASK DI CLASSIFICAZIONE
 
 #ESEMPIO
