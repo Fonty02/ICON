@@ -27,7 +27,7 @@ def createCSVDataset():
         # Itera attraverso ogni playlist nel JSON
         for playlist in data.get('playlists', []):
             playlist_name = playlist.get('name', '')
-            # Elimino la playlist delle raccomandazioni
+            # Elimino la playlist delle raccomandazioni in quanto non creata dall'utente ma da Spotify
             if playlist_name != "My recommendation playlist":
                 items = playlist.get('items', [])
                 for item in items:

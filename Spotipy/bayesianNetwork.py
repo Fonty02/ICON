@@ -51,8 +51,8 @@ def visualizeInfo(bayesianNetwork: BayesianNetwork):
 
 # Funzione che crea la rete bayesiana
 def bNetCreation(dataSet):
-    # Creo gli archi in base alla struttura da me scelta
-    '''edges = []
+    ''' precedente struttura
+    edges = []
     for column in dataSet.columns:
         if column != 'clusterIndex':
             edges.append(('clusterIndex', column))
@@ -65,9 +65,10 @@ def bNetCreation(dataSet):
     edges.append(('speechiness','liveness'))
     edges.append(('loudness','liveness'))
     edges.append(('danceability','valence'))'''
-    # Inizializza l'encoder
+    #Ricerca della struttura ottimale
     hc_k2=HillClimbSearch(dataSet)
     k2_model=hc_k2.estimate(scoring_method='k2score')
+    #Creazione della rete bayesiana
     model = BayesianNetwork(k2_model.edges())
     model.fit(dataSet,estimator=MaximumLikelihoodEstimator,n_jobs=-1)
     #Salvo la rete bayesiana su file
@@ -77,7 +78,13 @@ def bNetCreation(dataSet):
     #visualizeInfo(model)
     return model
 
-
+# Funzione che carica la rete bayesiana da file
+def loadBayesianNetwork():
+    with open('modello.pkl', 'rb') as input:
+        model = pickle.load(input)
+    visualizeBayesianNetwork(model)
+    # visualizeInfo(model)
+    return model
 
 #Predico il valore di differentialColumn per l'esempio
 def predici(bayesianNetwork: BayesianNetwork, example, differentialColumn):

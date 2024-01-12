@@ -3,7 +3,7 @@ import sys
 
 from tqdm import tqdm
 
-
+#Funzione per installare un package specifico
 def install(package):
     try:
         subprocess.check_call(
@@ -11,7 +11,7 @@ def install(package):
     except:
         pass
 
-
+#Funzione per installare le librerie necessarie
 def installPackages():
     packages = []
     with open("requirements.txt", "r") as file:

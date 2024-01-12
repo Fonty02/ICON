@@ -6,9 +6,10 @@ from sklearn.preprocessing import MinMaxScaler, KBinsDiscretizer
 from Spotipy.SpotifyProlog import estraiFeature, createCSVDataset, writeSongsInfo,writeClusterInfo,writeRules
 from unsupervisedLearning import calcolaCluster
 from balancingPlaylist import visualizeAspectRatioChart, overSampling
-from bayesianNetwork import bNetCreation, predici, generateRandomExample
+from bayesianNetwork import bNetCreation, predici, generateRandomExample, loadBayesianNetwork
 from supervisedLearning import trainModelKFold
 
+# SCALER
 scaler=MinMaxScaler()
 
 # DATASET CLEANING
@@ -54,7 +55,7 @@ dataSet.to_csv(new_file_path, index=False)
 writeClusterInfo(dataSet)
 writeRules()
 
-# Visualizza il rapporto di aspetto del dataset dopo il non supervisionato
+# Visualizza il rapporto di aspetto del dataset dopo il clustering
 visualizeAspectRatioChart(dataSet, differentialColumn,"Rapporto delle nuove playlist dato il clustering")
 
 
@@ -64,6 +65,7 @@ visualizeAspectRatioChart(dataSet, differentialColumn,"Rapporto delle nuove play
 model= trainModelKFold(dataSet, differentialColumn)
 # Eseguo oversamping del dataset per bilanciare le classi
 oversampled_dataSet = overSampling(dataSet, differentialColumn)
+# Visualizzo il rapporto di aspetto del dataset dopo l'oversampling
 visualizeAspectRatioChart(oversampled_dataSet, differentialColumn,"POST OVERSAMPLING")
 #Addestro e valuto i modelli dopo l'oversampling
 oversampled_dataSet= trainModelKFold(oversampled_dataSet, differentialColumn)
@@ -76,9 +78,9 @@ discretizer = KBinsDiscretizer(encode='ordinal', strategy='uniform')
 continuos_columns = dataSet.select_dtypes(include=['float64', 'int64']).columns
 dataSet[continuos_columns] = discretizer.fit_transform(dataSet[continuos_columns])
 
-#Creo la rete bayesiana a seconda delle necessità
-bayesianNetwork = bNetCreation(dataSet)
-
+#Creo o leggo la rete bayesiana a seconda delle necessità
+#bayesianNetwork = bNetCreation(dataSet)
+bayesianNetwork=loadBayesianNetwork()
 # TASK DI CLASSIFICAZIONE
 
 #ESEMPIO
@@ -90,7 +92,7 @@ del esempio['name']
 del esempio['author']
 esempio = pd.DataFrame(esempio, index=[0])
 esempio[:] = scaler.transform(esempio)
-#discretizzo l'esempio
+#Discretizzo l'esempio
 esempio[continuos_columns] = discretizer.transform(esempio[continuos_columns])
 esempio = esempio.to_dict('records')[0]
 print("ESEMPIO ---> ",esempio)
