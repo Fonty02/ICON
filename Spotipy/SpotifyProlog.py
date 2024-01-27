@@ -5,13 +5,12 @@ from pyswip import Prolog
 from spotipy.oauth2 import SpotifyOAuth
 
 #Inizializzo Spotipy
-username = "fontanaemanuele14"
-client_id = '84fb509f9cd542b98121fc8f9f526b51'
-client_secret = 'caf49f15a6304b2f85604400812e09d4'
-redirect_uri = "http://localhost:8080/proof"
+username =""
+client_id =""
+client_secret =""
+redirect_uri =""
 scope = 'user-library-read playlist-read-private playlist-read-collaborative playlist-modify-public playlist-modify-private'
-sp = spotipy.Spotify(
-    auth_manager=SpotifyOAuth(scope=scope, client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri))
+sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope, client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri))
 
 
 
